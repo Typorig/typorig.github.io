@@ -188,15 +188,23 @@ html, body {
   display: none;
 }
 
-/* Canvas */
+/* Canvas - checkerboard for transparent areas */
 #canvas {
   display: none;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  background-color: #555;
 }
 
 /* ── Drag over state ── */
 #canvas-area.drag-over {
-  background: #2a2a2a;
+  background-color: #777;
 }
