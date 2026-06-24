@@ -1,0 +1,202 @@
+/* ── Reset ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
+/* ── App Grid ── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Top Bar ── */
+#topbar {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #3c3c3c;
+  padding: 0 12px;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.topbar-brand {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ccc;
+  letter-spacing: 0.3px;
+  padding-right: 12px;
+  border-right: 1px solid #444;
+  user-select: none;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.top-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.top-btn:hover {
+  background: #3c3c3c;
+  color: #e0e0e0;
+}
+
+.top-btn.active {
+  background: #094771;
+  color: #fff;
+}
+
+.top-btn svg {
+  flex-shrink: 0;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #444;
+  margin: 0 4px;
+}
+
+/* ── Body (sidebar + canvas) ── */
+#body {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+#sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #252526;
+  border-right: 1px solid #3c3c3c;
+  padding: 6px 0;
+  gap: 2px;
+  z-index: 10;
+}
+
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.sidebar-divider {
+  width: 32px;
+  height: 1px;
+  background: #3c3c3c;
+  margin: 6px 0;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 48px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.15s;
+  gap: 2px;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-section:hover {
+  background: #3c3c3c;
+  color: #ccc;
+}
+
+.sidebar-section.active {
+  background: #094771;
+  color: #fff;
+}
+
+.sidebar-section svg {
+  flex-shrink: 0;
+}
+
+/* ── Canvas area ── */
+#canvas-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #1e1e1e;
+  overflow: hidden;
+}
+
+/* Drop zone */
+#dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #555;
+  text-align: center;
+  user-select: none;
+  pointer-events: none;
+}
+
+#dropzone svg {
+  opacity: 0.3;
+}
+
+#dropzone p {
+  font-size: 14px;
+}
+
+#dropzone.hidden {
+  display: none;
+}
+
+/* Canvas */
+#canvas {
+  display: none;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* ── Drag over state ── */
+#canvas-area.drag-over {
+  background: #2a2a2a;
+}
