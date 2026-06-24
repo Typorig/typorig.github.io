@@ -100,6 +100,11 @@ document.querySelectorAll(".sidebar-section").forEach((sec) => {
     const body = document.getElementById("body");
     const subGroups = document.querySelectorAll(".sub-group");
 
+    // Close ColorModule if switching sections
+    if (typeof ColorModule !== "undefined" && ColorModule.isActive()) {
+      ColorModule.close();
+    }
+
     const hasSub = section === "elements" || section === "text" || section === "background" || section === "effects";
 
     if (hasSub) {
@@ -165,6 +170,251 @@ document.querySelectorAll(".sub-item").forEach((item) => {
   item.addEventListener("click", () => {
     document.querySelectorAll(".sub-item").forEach((i) => i.classList.remove("active"));
     item.classList.add("active");
-    console.log("Sub action:", item.dataset.sub);
+    const sub = item.dataset.sub;
+    console.log("Sub action:", sub);
+
+    // From Camera
+    if (sub === "bg-from-camera") {
+      openCamera();
+    }
+
+    // From Upload
+    if (sub === "bg-from-upload") {
+      openUpload();
+    }
+
+    // Color (Monochrome / Gradient)
+    if (sub === "bg-color") {
+      openColorPanel();
+    }
   });
 });
+
+/* ── Camera capture ── */
+function openCamera() {
+  let stream = null;
+  let capturedDataUrl = null;
+
+  const popup = showPopup({
+    title: "Capture from Camera",
+    width: "520px",
+    content: `
+      <div id="camera-container" style="position:relative;text-align:center;">
+        <video id="camera-preview" autoplay playsinline style="width:100%;border-radius:6px;background:#000;max-height:60vh;display:none;"></video>
+        <canvas id="camera-canvas" style="display:none;"></canvas>
+        <div id="camera-placeholder" style="padding:60px 20px;color:#888;font-size:14px;text-align:center;">
+          <p style="margin:0 0 8px;">⏳ Requesting camera access...</p>
+          <p style="font-size:12px;color:#666;margin:0;">Please allow camera permission when prompted.</p>
+        </div>
+        <div id="camera-preview-wrapper" style="display:none;">
+          <img id="camera-captured-img" style="width:100%;border-radius:6px;max-height:60vh;" />
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;">
+          <button id="camera-capture-btn" style="padding:10px 24px;background:#094771;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">📷 Capture</button>
+          <button id="camera-retake-btn" style="padding:10px 24px;background:#555;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;display:none;">🔄 Retake</button>
+          <button id="camera-use-btn" style="padding:10px 24px;background:#2d8a2d;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;display:none;">✓ Use Photo</button>
+        </div>
+      </div>
+    `,
+    onClose: stopCamera
+  });
+
+  const video = document.getElementById("camera-preview");
+  const canvas = document.getElementById("camera-canvas");
+  const placeholder = document.getElementById("camera-placeholder");
+  const previewWrapper = document.getElementById("camera-preview-wrapper");
+  const capturedImg = document.getElementById("camera-captured-img");
+  const captureBtn = document.getElementById("camera-capture-btn");
+  const retakeBtn = document.getElementById("camera-retake-btn");
+  const useBtn = document.getElementById("camera-use-btn");
+
+  async function startCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      video.srcObject = stream;
+      await video.play();
+      placeholder.style.display = "none";
+      video.style.display = "block";
+    } catch (err) {
+      placeholder.innerHTML = `
+        <p style="color:#e74c3c;margin:0 0 8px;">❌ Camera access denied</p>
+        <p style="font-size:12px;color:#999;margin:0;">${err.message}</p>
+      `;
+    }
+  }
+  startCamera();
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      stream = null;
+    }
+  }
+
+  captureBtn.addEventListener("click", () => {
+    if (!video.videoWidth) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const capCtx = canvas.getContext("2d");
+    capCtx.drawImage(video, 0, 0);
+    capturedDataUrl = canvas.toDataURL("image/png");
+
+    // Show captured image, hide video
+    video.style.display = "none";
+    capturedImg.src = capturedDataUrl;
+    previewWrapper.style.display = "block";
+
+    captureBtn.style.display = "none";
+    retakeBtn.style.display = "inline-flex";
+    useBtn.style.display = "inline-flex";
+
+    stopCamera();
+  });
+
+  retakeBtn.addEventListener("click", () => {
+    previewWrapper.style.display = "none";
+    capturedDataUrl = null;
+    captureBtn.style.display = "inline-flex";
+    retakeBtn.style.display = "none";
+    useBtn.style.display = "none";
+    startCamera();
+  });
+
+  useBtn.addEventListener("click", () => {
+    if (capturedDataUrl) {
+      // Convert data URL to a File and load into canvas
+      fetch(capturedDataUrl)
+        .then((r) => r.blob())
+        .then((blob) => {
+          const file = new File([blob], "camera-capture.png", { type: "image/png" });
+          if (typeof loadImage === "function") {
+            loadImage(file);
+          }
+        });
+    }
+    stopCamera();
+    popup.close();
+  });
+
+}
+
+/* ── Upload image (file or URL) ── */
+function openUpload() {
+  showPopup({
+    title: "Upload Image",
+    width: "420px",
+    content: `
+      <div id="upload-container" style="display:flex;flex-direction:column;gap:16px;">
+        <!-- File upload -->
+        <label style="color:#ccc;font-size:13px;font-weight:600;">From File</label>
+        <input type="file" id="upload-file-input" accept="image/*" style="color:#ccc;font-size:13px;" />
+
+        <div style="display:flex;align-items:center;gap:12px;color:#666;font-size:12px;">
+          <span style="flex:1;height:1px;background:#444;"></span>
+          <span>OR</span>
+          <span style="flex:1;height:1px;background:#444;"></span>
+        </div>
+
+        <!-- URL input -->
+        <label style="color:#ccc;font-size:13px;font-weight:600;">From URL</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="upload-url-input" placeholder="https://example.com/image.jpg" style="flex:1;background:#1e1e1e;border:1px solid #555;border-radius:4px;padding:8px 10px;color:#e0e0e0;font-size:13px;" />
+          <button id="upload-url-btn" style="padding:8px 16px;background:#094771;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;">Load</button>
+        </div>
+
+        <div id="upload-error" style="display:none;color:#e74c3c;font-size:12px;padding:8px;background:#3a1a1a;border-radius:4px;border:1px solid #5a2a2a;"></div>
+      </div>
+    `
+  });
+
+  const fileInput = document.getElementById("upload-file-input");
+  const urlInput = document.getElementById("upload-url-input");
+  const urlBtn = document.getElementById("upload-url-btn");
+  const errorEl = document.getElementById("upload-error");
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.style.display = "block";
+  }
+
+  function hideError() {
+    errorEl.style.display = "none";
+  }
+
+  function loadFromFile(file) {
+    if (!file || !file.type.startsWith("image/")) {
+      showError("Please select a valid image file.");
+      return;
+    }
+    if (typeof loadImage === "function") {
+      loadImage(file);
+      hideError();
+      // Close popup after short delay so user sees confirmation
+      setTimeout(() => {
+        const popupOverlay = document.querySelector(".popup-overlay");
+        if (popupOverlay) {
+          const closeBtn = popupOverlay.querySelector(".popup-close");
+          if (closeBtn) closeBtn.click();
+        }
+      }, 300);
+    }
+  }
+
+  function loadFromUrl(url) {
+    if (!url.trim()) {
+      showError("Please enter an image URL.");
+      return;
+    }
+    // Fetch the image via a proxy-less approach: load into Image with CORS
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      // Draw to canvas to get a blob, then pass to loadImage
+      const c = document.createElement("canvas");
+      c.width = img.width;
+      c.height = img.height;
+      const cCtx = c.getContext("2d");
+      cCtx.drawImage(img, 0, 0);
+      c.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], "url-image.png", { type: "image/png" });
+          if (typeof loadImage === "function") {
+            loadImage(file);
+            hideError();
+            setTimeout(() => {
+              const popupOverlay = document.querySelector(".popup-overlay");
+              if (popupOverlay) {
+                const closeBtn = popupOverlay.querySelector(".popup-close");
+                if (closeBtn) closeBtn.click();
+              }
+            }, 300);
+          }
+        } else {
+          showError("Failed to process image from URL.");
+        }
+      });
+    };
+    img.onerror = () => {
+      showError("Could not load image from URL. Check the link or CORS policy.");
+    };
+    img.src = url;
+  }
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) {
+      loadFromFile(fileInput.files[0]);
+    }
+  });
+
+  urlBtn.addEventListener("click", () => loadFromUrl(urlInput.value));
+  urlInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") loadFromUrl(urlInput.value);
+  });
+}
+
+/* ── Color panel (delegates to ColorModule) ── */
+function openColorPanel() {
+  if (typeof ColorModule !== "undefined") {
+    ColorModule.open();
+  }
+}

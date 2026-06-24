@@ -6,6 +6,7 @@ function showPopup(opts) {
     title = "",
     content = "",
     width = "400px",
+    maxHeight, // allow overriding CSS max-height (e.g. "none" for large popups)
     onClose
   } = opts || {};
 
@@ -16,6 +17,7 @@ function showPopup(opts) {
   const box = document.createElement("div");
   box.className = "popup-box";
   box.style.width = width;
+  if (maxHeight !== undefined) box.style.maxHeight = maxHeight;
   box.innerHTML = `
     <div class="popup-header">
       <span class="popup-title">${title}</span>
