@@ -29,7 +29,7 @@
       <!-- Sidebar -->
       <aside id="sidebar">
         <div class="sidebar-group">
-          <div class="sidebar-section active" data-section="elements">
+          <div class="sidebar-section" data-section="elements">
             <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z"/></svg>
             <span>Elements</span>
           </div>
@@ -41,15 +41,115 @@
             <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z"/></svg>
             <span>Background</span>
           </div>
-          <div class="sidebar-section" data-section="coating">
+          <div class="sidebar-section" data-section="effects">
             <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            <span>Coating</span>
+            <span>Effects</span>
           </div>
         </div>
         <div class="sidebar-divider"></div>
         <div class="sidebar-section" data-section="setting">
           <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
           <span>Setting</span>
+        </div>
+      </aside>
+
+      <!-- Sub sidebar (shown when a section requires it) -->
+      <aside id="sub-sidebar" class="hidden">
+        <!-- Elements items -->
+        <div class="sub-group hidden" data-section="elements">
+          <button class="sub-item" data-sub="el-emojis">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+            <span>Emojis</span>
+          </button>
+          <button class="sub-item" data-sub="el-import">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+            <span>Import</span>
+          </button>
+          <button class="sub-item" data-sub="el-shapes">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>Shapes</span>
+          </button>
+          <button class="sub-item" data-sub="el-bezier">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M22 7.5C22 9.43 19.43 11 17.5 11S13 9.43 13 7.5 15.57 4 17.5 4 22 5.57 22 7.5zM3.5 19C5.43 19 8 17.43 8 15.5S5.43 12 3.5 12 1 13.57 1 15.5 3.57 19 3.5 19z"/><path fill="currentColor" d="M17.5 4c-1.39 0-2.62.48-3.59 1.27l-4.82-2.41A3.5 3.5 0 0 0 3.5 12c.59 0 1.15-.14 1.65-.38l4.82 2.41c-.09.32-.14.65-.14.99 0 1.28.69 2.39 1.7 2.98l-1.3 2.34A3.5 3.5 0 0 0 17.5 22c1.93 0 3.5-1.57 3.5-3.5S19.43 15 17.5 15c-.59 0-1.15.14-1.65.38l-1.3-2.34c.64-.53 1.1-1.27 1.3-2.12l4.82-2.41c.46.23.98.36 1.52.36 1.93 0 3.5-1.57 3.5-3.5S19.43 4 17.5 4z"/></svg>
+            <span>Bezier</span>
+          </button>
+          <button class="sub-item" data-sub="el-arrow">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+            <span>Arrow</span>
+          </button>
+        </div>
+        <!-- Text items -->
+        <div class="sub-group hidden" data-section="text">
+          <button class="sub-item" data-sub="text-new">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M5 4v3h5.5v12h3V7H19V4H5z"/></svg>
+            <span>New Text</span>
+          </button>
+        </div>
+        <!-- Background items -->
+        <div class="sub-group hidden" data-section="background">
+          <button class="sub-item" data-sub="bg-color">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+            <span>Color</span>
+          </button>
+          <button class="sub-item" data-sub="bg-transparent">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+            <span>Transparent</span>
+          </button>
+          <button class="sub-item" data-sub="bg-image">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            <span>Image</span>
+          </button>
+          <button class="sub-item" data-sub="bg-size">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6 18H4V8h10v12zm6 0h-4V8h4v12z"/></svg>
+            <span>Size</span>
+          </button>
+          <button class="sub-item" data-sub="bg-crop">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M17 15h2V7a2 2 0 0 0-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10a2 2 0 0 0 2 2h10v4h2v-4h4v-2H7z"/></svg>
+            <span>Crop</span>
+          </button>
+          <button class="sub-item" data-sub="bg-from-upload">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+            <span>From Upload</span>
+          </button>
+          <button class="sub-item" data-sub="bg-from-camera">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"/><path fill="currentColor" d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+            <span>From Camera</span>
+          </button>
+        </div>
+        <!-- Effects items -->
+        <div class="sub-group hidden" data-section="effects">
+          <button class="sub-item" data-sub="fx-rotate">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M15.55 5.55L11 1v3.07C7.06 4.56 4 7.92 4 12s3.06 7.44 7 7.93v-2.02c-2.84-.48-5-2.94-5-5.91s2.16-5.43 5-5.91V1l4.55 4.55zM19.93 11a7.9 7.9 0 0 0-1.62-3.89l-1.42 1.42c.54.75.88 1.6 1.02 2.47h2.02zM13 17.93v2.02a7.94 7.94 0 0 0 3.89-1.62l-1.42-1.42c-.75.54-1.59.89-2.47 1.02zm3.89-2.42l1.42 1.41A7.9 7.9 0 0 0 19.93 13h-2.02a5.94 5.94 0 0 1-1.02 2.51z"/></svg>
+            <span>Rotate</span>
+          </button>
+          <button class="sub-item" data-sub="fx-vignette">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+            <span>Vignette</span>
+          </button>
+          <button class="sub-item" data-sub="fx-noise">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>Noise</span>
+          </button>
+          <button class="sub-item" data-sub="fx-stripes">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 13h18v-2H3v2z"/></svg>
+            <span>Stripes</span>
+          </button>
+          <button class="sub-item" data-sub="fx-brightness">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M20 15.31L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+            <span>Brightness</span>
+          </button>
+          <button class="sub-item" data-sub="fx-contrast">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86z"/></svg>
+            <span>Contrast</span>
+          </button>
+          <button class="sub-item" data-sub="fx-hue">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3-8c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z"/></svg>
+            <span>Hue</span>
+          </button>
+          <button class="sub-item" data-sub="fx-saturation">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-3.5l6-4.5-6-4.5v9z"/></svg>
+            <span>Saturation</span>
+          </button>
         </div>
       </aside>
 
@@ -64,6 +164,8 @@
     </div>
   </div>
 
+  <script src="js/popup.js"></script>
+  <script src="js/bar.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

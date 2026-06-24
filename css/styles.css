@@ -85,12 +85,17 @@ html, body {
   margin: 0 4px;
 }
 
-/* ── Body (sidebar + canvas) ── */
+/* ── Body (sidebar + sub-sidebar + canvas) ── */
 #body {
   display: grid;
-  grid-template-columns: 52px 1fr;
+  grid-template-columns: 52px 0fr 1fr;
   flex: 1;
   overflow: hidden;
+  transition: grid-template-columns 0.2s;
+}
+
+#body.sub-open {
+  grid-template-columns: 52px 200px 1fr;
 }
 
 /* ── Sidebar ── */
@@ -153,6 +158,56 @@ html, body {
   flex-shrink: 0;
 }
 
+/* ── Sub sidebar ── */
+#sub-sidebar {
+  background: #2a2a2a;
+  border-right: 1px solid #3c3c3c;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  width: 200px;
+}
+
+#sub-sidebar.hidden {
+  display: none;
+}
+
+.sub-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sub-group.hidden {
+  display: none;
+}
+
+.sub-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.sub-item:hover {
+  background: #3c3c3c;
+  color: #e0e0e0;
+}
+
+.sub-item.active {
+  background: #094771;
+  color: #fff;
+}
+
 /* ── Canvas area ── */
 #canvas-area {
   display: flex;
@@ -207,4 +262,94 @@ html, body {
 /* ── Drag over state ── */
 #canvas-area.drag-over {
   background-color: #777;
+}
+
+/* ── Popup overlay ── */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.popup-overlay.popup-open {
+  opacity: 1;
+}
+.popup-overlay.popup-closing {
+  opacity: 0;
+}
+.popup-box {
+  background: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 8px;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  min-width: 280px;
+}
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #444;
+}
+.popup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+.popup-close {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.popup-close:hover {
+  color: #fff;
+}
+.popup-body {
+  padding: 16px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+/* ── Dropdown menu ── */
+.dropdown-menu {
+  position: fixed;
+  z-index: 1001;
+  background: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 6px;
+  min-width: 160px;
+  padding: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+}
+.dropdown-item:hover {
+  background: #3c3c3c;
+  color: #fff;
+}
+.dropdown-item svg {
+  flex-shrink: 0;
 }

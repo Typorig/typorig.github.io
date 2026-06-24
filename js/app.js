@@ -4,8 +4,6 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const dropzone = document.getElementById("dropzone");
 const canvasArea = document.getElementById("canvas-area");
-const imageInput = document.getElementById("imageInput");
-const downloadBtn = document.getElementById("downloadBtn");
 
 let sourceImage = null;
 let displayImage = null;
@@ -47,22 +45,4 @@ canvasArea.addEventListener("drop", (e) => {
   if (file && file.type.startsWith("image/")) loadImage(file);
 });
 
-/* ── Top bar buttons ── */
-document.querySelectorAll(".top-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const action = btn.dataset.action;
-    // Toggle active for tools
-    document.querySelectorAll(".top-btn").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    console.log("Top action:", action);
-  });
-});
 
-/* ── Sidebar sections ── */
-document.querySelectorAll(".sidebar-section").forEach((sec) => {
-  sec.addEventListener("click", () => {
-    document.querySelectorAll(".sidebar-section").forEach((s) => s.classList.remove("active"));
-    sec.classList.add("active");
-    console.log("Section:", sec.dataset.section);
-  });
-});

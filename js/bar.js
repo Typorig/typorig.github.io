@@ -1,0 +1,170 @@
+"use strict";
+
+/* ── Top bar buttons ── */
+document.querySelectorAll(".top-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const action = btn.dataset.action;
+
+    // Undo / Redo: flash active for 200ms
+    if (action === "undo" || action === "redo") {
+      btn.classList.add("active");
+      setTimeout(() => btn.classList.remove("active"), 200);
+      return;
+    }
+
+    // Ruler / Layer: toggle switch (sticky)
+    if (action === "ruler" || action === "layer") {
+      btn.classList.toggle("active");
+      return;
+    }
+
+    // Add: dropdown menu
+    if (action === "add") {
+      showDropdown(btn, {
+        items: [
+          { label: "Text", action: "add-text", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M5 4v3h5.5v12h3V7H19V4H5z"/></svg>' },
+          { label: "Current Date", action: "add-date", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>' },
+          { label: "Emojis", action: "add-emojis", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>' },
+          { label: "Shapes", action: "add-shapes", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>' },
+          { label: "Import", action: "add-import", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>' },
+        ],
+        onItemClick: (item) => console.log("Add:", item.action)
+      });
+      return;
+    }
+
+    // Save: dropdown menu
+    if (action === "save") {
+      showDropdown(btn, {
+        items: [
+          { label: "Save as Project", action: "save-project", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>' },
+          { label: "Save as Image", action: "save-image", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>' },
+        ],
+        onItemClick: (item) => console.log("Save:", item.action)
+      });
+      return;
+    }
+
+    // More: dropdown menu
+    if (action === "more") {
+      showDropdown(btn, {
+        items: [
+          { label: "View", action: "more-view", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>' },
+          { label: "Open Project (.trp)", action: "more-open", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>' },
+          { label: "Shortcut", action: "more-shortcut", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8h2v8H9zm4 0h2v8h-2z"/></svg>' },
+          { label: "GitHub", action: "more-github", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2C6.475 2 2 6.475 2 12c0 4.425 2.875 8.175 6.85 9.5.5.075.675-.2.675-.475v-1.7c-2.75.6-3.325-1.3-3.325-1.3-.45-1.125-1.1-1.425-1.1-1.425-.9-.6.075-.6.075-.6 1 .075 1.525 1.025 1.525 1.025.9 1.525 2.35 1.075 2.925.825.075-.65.35-1.075.625-1.325-2.2-.25-4.5-1.1-4.5-4.9 0-1.075.375-1.95 1.025-2.625-.1-.25-.45-1.275.1-2.65 0 0 .825-.275 2.7 1.025.8-.225 1.65-.325 2.5-.325s1.7.1 2.5.325c1.875-1.3 2.7-1.025 2.7-1.025.55 1.375.2 2.4.1 2.65.65.675 1.025 1.55 1.025 2.625 0 3.8-2.3 4.65-4.5 4.9.35.3.675.925.675 1.85v2.725c0 .275.175.55.675.475C19.125 20.175 22 16.425 22 12c0-5.525-4.475-10-10-10"/></svg>' },
+          { label: "About", action: "more-about", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>' },
+        ],
+        onItemClick: (item) => {
+          if (item.action === "more-github") {
+            window.open("https://github.com/Typorig/typorig.github.io", "_blank");
+          } else if (item.action === "more-about") {
+            showPopup({
+              title: "About Typorig",
+              width: "420px",
+              content: `
+                <div style="text-align:center;padding:8px 0;">
+                  <h2 style="font-size:20px;margin:0 0 4px;color:#fff;">Typorig</h2>
+                  <p style="color:#aaa;margin:0 0 16px;font-size:13px;">by Sao Tin Developers</p>
+                  <p style="color:#ccc;font-size:13px;line-height:1.6;margin:0 0 16px;">
+                    Typorig is a browser-based image editing tool that runs entirely on the frontend.
+                  </p>
+                  <p style="font-size:12px;color:#999;margin:0 0 6px;">
+                    License: <a href="https://github.com/Typorig/typorig.github.io/blob/master/LICENSE.md" target="_blank" style="color:#4da6ff;">Apache License Version 2.0</a>
+                  </p>
+                  <p style="font-size:12px;color:#999;margin:0 0 16px;">
+                    GitHub: <a href="https://github.com/Typorig/typorig.github.io" target="_blank" style="color:#4da6ff;">github.com/Typorig/typorig.github.io</a>
+                  </p>
+                  <p style="color:#888;font-size:13px;margin:0;">Have fun using Typorig! :)</p>
+                </div>
+              `
+            });
+          } else {
+            console.log("More:", item.action);
+          }
+        }
+      });
+      return;
+    }
+  });
+});
+
+/* ── Sidebar sections ── */
+document.querySelectorAll(".sidebar-section").forEach((sec) => {
+  sec.addEventListener("click", () => {
+    document.querySelectorAll(".sidebar-section").forEach((s) => s.classList.remove("active"));
+    sec.classList.add("active");
+
+    const section = sec.dataset.section;
+    const subSidebar = document.getElementById("sub-sidebar");
+    const body = document.getElementById("body");
+    const subGroups = document.querySelectorAll(".sub-group");
+
+    const hasSub = section === "elements" || section === "text" || section === "background" || section === "effects";
+
+    if (hasSub) {
+      subSidebar.classList.remove("hidden");
+      body.classList.add("sub-open");
+      // Hide all groups first, then show the active one
+      subGroups.forEach((g) => g.classList.add("hidden"));
+      const activeGroup = document.querySelector(`.sub-group[data-section="${section}"]`);
+      if (activeGroup) activeGroup.classList.remove("hidden");
+    } else if (section === "setting") {
+      // Setting opens as a popup
+      subSidebar.classList.add("hidden");
+      body.classList.remove("sub-open");
+      showPopup({
+        title: "Settings",
+        width: "480px",
+        content: `
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="setting-row">
+              <label style="color:#ccc;font-size:13px;display:block;margin-bottom:4px;">Canvas Size</label>
+              <div style="display:flex;gap:8px;">
+                <input type="number" id="setting-canvas-w" value="1920" style="flex:1;background:#1e1e1e;border:1px solid #555;border-radius:4px;padding:6px 8px;color:#e0e0e0;font-size:13px;" placeholder="Width" />
+                <span style="color:#777;line-height:32px;">×</span>
+                <input type="number" id="setting-canvas-h" value="1080" style="flex:1;background:#1e1e1e;border:1px solid #555;border-radius:4px;padding:6px 8px;color:#e0e0e0;font-size:13px;" placeholder="Height" />
+              </div>
+            </div>
+            <div class="setting-row">
+              <label style="color:#ccc;font-size:13px;display:block;margin-bottom:4px;">Canvas Background Color</label>
+              <input type="color" id="setting-canvas-bg" value="#1e1e1e" style="width:100%;height:36px;background:#1e1e1e;border:1px solid #555;border-radius:4px;cursor:pointer;" />
+            </div>
+            <div class="setting-row">
+              <label style="color:#ccc;font-size:13px;display:block;margin-bottom:4px;">Theme</label>
+              <select id="setting-theme" style="width:100%;background:#1e1e1e;border:1px solid #555;border-radius:4px;padding:6px 8px;color:#e0e0e0;font-size:13px;">
+                <option value="dark">Dark (default)</option>
+                <option value="light">Light</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <label style="color:#ccc;font-size:13px;display:block;margin-bottom:4px;">Language</label>
+              <select id="setting-lang" style="width:100%;background:#1e1e1e;border:1px solid #555;border-radius:4px;padding:6px 8px;color:#e0e0e0;font-size:13px;">
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <label style="color:#ccc;font-size:13px;display:block;margin-bottom:4px;">Shortcut Settings</label>
+              <p style="color:#888;font-size:12px;margin:0;">Coming soon...</p>
+            </div>
+          </div>
+        `
+      });
+    } else {
+      subSidebar.classList.add("hidden");
+      body.classList.remove("sub-open");
+    }
+
+    console.log("Section:", section);
+  });
+});
+
+/* ── Sub sidebar items ── */
+document.querySelectorAll(".sub-item").forEach((item) => {
+  item.addEventListener("click", () => {
+    document.querySelectorAll(".sub-item").forEach((i) => i.classList.remove("active"));
+    item.classList.add("active");
+    console.log("Sub action:", item.dataset.sub);
+  });
+});
