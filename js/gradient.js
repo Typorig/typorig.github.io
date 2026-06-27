@@ -189,7 +189,29 @@ const GradientModule = (() => {
 
     // Apply
     document.getElementById("cg-apply-btn").addEventListener("click", () => {
+      console.log("[GradientModule] Apply button clicked");
       applyToCanvas();
+      
+      // Save to ColorModule gradient presets list
+      if (typeof ColorModule !== "undefined" && ColorModule.addGradientPreset) {
+        if (type === "linear") {
+          const gradData = {
+            type: "linear",
+            stops: getProcessedLinearStops(),
+            startPoint: { x: startPoint.x, y: startPoint.y },
+            endPoint: { x: endPoint.x, y: endPoint.y }
+          };
+          console.log("[GradientModule] Saving Linear gradient:", gradData);
+          ColorModule.addGradientPreset(gradData, "Linear Custom");
+        } else {
+          const gradData = {
+            type: "radial",
+            meshPoints: meshPoints.map(p => ({ x: p.x, y: p.y, color: p.color, radius: p.radius }))
+          };
+          console.log("[GradientModule] Saving Radial gradient:", gradData);
+          ColorModule.addGradientPreset(gradData, "Radial Custom");
+        }
+      }
       const closeBtn = document.querySelector(".popup-overlay .popup-close");
       if (closeBtn) closeBtn.click();
     });

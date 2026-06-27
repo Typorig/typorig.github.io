@@ -513,3 +513,8 @@ html, body {
 .grad-handle-2d:hover {
   transform: scale(1.2);
 }
+
+.sub-item.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}

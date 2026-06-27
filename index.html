@@ -25,7 +25,7 @@
     </header>
 
     <!-- Body: sidebar + canvas -->
-    <div id="body">
+    <div id="body" class="sub-open">
       <!-- Sidebar -->
       <aside id="sidebar">
         <div class="sidebar-group">
@@ -37,7 +37,7 @@
             <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M5 4v3h5.5v12h3V7H19V4H5z"/></svg>
             <span>Text</span>
           </div>
-          <div class="sidebar-section" data-section="background">
+          <div class="sidebar-section active" data-section="background">
             <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z"/></svg>
             <span>Background</span>
           </div>
@@ -54,7 +54,7 @@
       </aside>
 
       <!-- Sub sidebar (shown when a section requires it) -->
-      <aside id="sub-sidebar" class="hidden">
+      <aside id="sub-sidebar">
         <!-- Elements items -->
         <div class="sub-group hidden" data-section="elements">
           <button class="sub-item" data-sub="el-emojis">
@@ -86,7 +86,7 @@
           </button>
         </div>
         <!-- Background items -->
-        <div class="sub-group hidden" data-section="background">
+        <div class="sub-group" data-section="background">
           <button class="sub-item" data-sub="bg-color">
             <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
             <span>Color</span>
@@ -94,10 +94,6 @@
           <button class="sub-item" data-sub="bg-transparent">
             <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
             <span>Transparent</span>
-          </button>
-          <button class="sub-item" data-sub="bg-image">
-            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-            <span>Image</span>
           </button>
           <button class="sub-item" data-sub="bg-size">
             <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6 18H4V8h10v12zm6 0h-4V8h4v12z"/></svg>
@@ -168,6 +164,7 @@
   <script src="js/bar.js"></script>
   <script src="js/color.js"></script>
   <script src="js/gradient.js"></script>
+  <script src="js/crop.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

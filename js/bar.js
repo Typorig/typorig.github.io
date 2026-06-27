@@ -115,9 +115,7 @@ document.querySelectorAll(".sidebar-section").forEach((sec) => {
       const activeGroup = document.querySelector(`.sub-group[data-section="${section}"]`);
       if (activeGroup) activeGroup.classList.remove("hidden");
     } else if (section === "setting") {
-      // Setting opens as a popup
-      subSidebar.classList.add("hidden");
-      body.classList.remove("sub-open");
+      // Setting opens as a popup — keep sub-sidebar as-is
       showPopup({
         title: "Settings",
         width: "480px",
@@ -183,9 +181,24 @@ document.querySelectorAll(".sub-item").forEach((item) => {
       openUpload();
     }
 
+    // Transparent
+    if (sub === "bg-transparent") {
+      openTransparent();
+    }
+
+    // Crop (only for real images)
+    if (sub === "bg-crop") {
+      if (typeof CropModule !== "undefined") CropModule.open();
+    }
+
     // Color (Monochrome / Gradient)
     if (sub === "bg-color") {
       openColorPanel();
+    }
+
+    // Size
+    if (sub === "bg-size") {
+      openSizePanel();
     }
   });
 });
@@ -287,8 +300,8 @@ function openCamera() {
         .then((r) => r.blob())
         .then((blob) => {
           const file = new File([blob], "camera-capture.png", { type: "image/png" });
-          if (typeof loadImage === "function") {
-            loadImage(file);
+          if (typeof window.loadImage === "function") {
+            window.loadImage(file);
           }
         });
     }
@@ -346,8 +359,8 @@ function openUpload() {
       showError("Please select a valid image file.");
       return;
     }
-    if (typeof loadImage === "function") {
-      loadImage(file);
+    if (typeof window.loadImage === "function") {
+      window.loadImage(file);
       hideError();
       // Close popup after short delay so user sees confirmation
       setTimeout(() => {
@@ -378,8 +391,8 @@ function openUpload() {
       c.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], "url-image.png", { type: "image/png" });
-          if (typeof loadImage === "function") {
-            loadImage(file);
+          if (typeof window.loadImage === "function") {
+            window.loadImage(file);
             hideError();
             setTimeout(() => {
               const popupOverlay = document.querySelector(".popup-overlay");
@@ -417,4 +430,246 @@ function openColorPanel() {
   if (typeof ColorModule !== "undefined") {
     ColorModule.open();
   }
+}
+
+/* ── Transparent (clear canvas content, keep size) ── */
+function openTransparent() {
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width || 1200;
+  const H = canvas.height || 600;
+  ctx.clearRect(0, 0, W, H);
+
+  // Update sourceImage to empty transparent
+  const dataUrl = canvas.toDataURL();
+  const img = new Image();
+  img.onload = () => {
+    window.sourceImage = img;
+    window.displayImage = img;
+    if (typeof render === "function") render();
+  };
+  img.src = dataUrl;
+}
+
+/* ── Disable Crop button if no real image ── */
+window.updateCropButtonState = function() {
+  const cropBtns = document.querySelectorAll('.sub-item[data-sub="bg-crop"]');
+  cropBtns.forEach(btn => {
+    if (window.hasRealImage) {
+      btn.classList.remove("disabled");
+      btn.style.pointerEvents = "";
+      btn.style.opacity = "";
+    } else {
+      btn.classList.add("disabled");
+      btn.style.pointerEvents = "none";
+      btn.style.opacity = "0.4";
+    }
+  });
+};
+
+// Initial check
+setTimeout(window.updateCropButtonState, 100);
+
+/* ── Size panel ── */
+function openSizePanel() {
+  const canvas = document.getElementById("canvas");
+  const img = window.sourceImage;
+  const w = canvas ? canvas.width : (img ? img.width : 800);
+  const h = canvas ? canvas.height : (img ? img.height : 600);
+  
+  // Safe GCD function that won't throw
+  function gcd(a, b) {
+    if (!b) return a || 1;
+    return gcd(b, a % b);
+  }
+  const g = gcd(w, h);
+  let aspectW = Math.round(w / g);
+  let aspectH = Math.round(h / g);
+  let keepAspect = true;
+  let currentW = w;
+  let currentH = h;
+
+  const presets = [
+    { label: "Original", w: w, h: h },
+    { label: "Square (1:1)", w: 1080, h: 1080 },
+    { label: "Instagram Portrait (4:5)", w: 1080, h: 1350 },
+    { label: "Instagram Landscape (1.91:1)", w: 1080, h: 565 },
+    { label: "Twitter Post (16:9)", w: 1280, h: 720 },
+    { label: "Twitter Header (3:1)", w: 1500, h: 500 },
+    { label: "Facebook Post (1.91:1)", w: 1200, h: 630 },
+    { label: "Facebook Cover (16:9)", w: 1640, h: 624 },
+    { label: "YouTube Thumbnail (16:9)", w: 1280, h: 720 },
+    { label: "TikTok (9:16)", w: 1080, h: 1920 },
+    { label: "A4 (1:√2)", w: 2480, h: 3508 },
+    { label: "A3 (1:√2)", w: 3508, h: 4961 },
+  ];
+
+  function constructHTML() {
+    return `
+      <div class="size-panel" style="display:flex;flex-direction:column;gap:12px;">
+        <button id="size-back-btn" class="sub-item" style="margin-bottom:4px;">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          <span>Back</span>
+        </button>
+        <!-- Aspect Ratio -->
+        <div>
+          <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;">Aspect Ratio</label>
+          <div id="size-aspect-display" style="font-family:monospace;font-size:13px;color:#e0e0e0;background:#1e1e1e;padding:8px 10px;border-radius:4px;border:1px solid #555;text-align:center;">
+            ${aspectW}:${aspectH}
+          </div>
+        </div>
+        <!-- Width / Height -->
+        <div>
+          <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;">Dimensions</label>
+          <div style="display:flex;gap:8px;">
+            <div style="flex:1;">
+              <span style="font-size:10px;color:#888;">Width</span>
+              <input type="number" id="size-width" value="${currentW}" min="1" style="width:100%;background:#1e1e1e;border:1px solid #555;border-radius:4px;padding:6px 8px;color:#e0e0e0;font-size:13px;" />
+            </div>
+            <div style="flex:1;">
+              <span style="font-size:10px;color:#888;">Height</span>
+              <input type="number" id="size-height" value="${currentH}" min="1" style="width:100%;background:#1e1e1e;border:1px solid #555;border-radius:4px;padding:6px 8px;color:#e0e0e0;font-size:13px;" />
+            </div>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#999;cursor:pointer;">
+            <input type="checkbox" id="size-keep-aspect" checked />
+            Keep aspect ratio
+          </label>
+        </div>
+        <!-- Preset -->
+        <div>
+          <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;">Preset</label>
+          <button id="size-preset-btn" style="width:100%;padding:8px 10px;background:#1e1e1e;border:1px solid #555;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;">
+            <span id="size-preset-label">Select preset...</span>
+            <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+          </button>
+        </div>
+        <!-- Apply -->
+        <button id="size-apply-btn" style="padding:8px 14px;background:#094771;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;">Apply</button>
+      </div>
+    `;
+  }
+
+  const container = document.getElementById("sub-sidebar");
+  if (!container) return;
+
+  // Close ColorModule if active
+  if (typeof ColorModule !== "undefined" && ColorModule.isActive()) {
+    ColorModule.close();
+  }
+
+  // Save original sub-sidebar HTML for back/restore (only if not already a panel)
+  if (!container.querySelector(".size-panel")) {
+    window._savedSubHTML = container.innerHTML;
+  }
+  container.innerHTML = constructHTML();
+
+  const widthInput = document.getElementById("size-width");
+  const heightInput = document.getElementById("size-height");
+  const keepCheck = document.getElementById("size-keep-aspect");
+  const aspectDisplay = document.getElementById("size-aspect-display");
+  const presetBtn = document.getElementById("size-preset-btn");
+  const applyBtn = document.getElementById("size-apply-btn");
+
+  // Back button
+  document.getElementById("size-back-btn").addEventListener("click", () => {
+    if (window._savedSubHTML) {
+      container.innerHTML = window._savedSubHTML;
+      window._savedSubHTML = null;
+      // Rebind sub-item events for Background group
+      document.querySelectorAll(".sub-item").forEach((item) => {
+        item.addEventListener("click", function subClick() {
+          document.querySelectorAll(".sub-item").forEach((i) => i.classList.remove("active"));
+          this.classList.add("active");
+          const sub = this.dataset.sub;
+          if (sub === "bg-from-camera") openCamera();
+          if (sub === "bg-from-upload") openUpload();
+          if (sub === "bg-transparent") openTransparent();
+          if (sub === "bg-crop" && typeof CropModule !== "undefined") CropModule.open();
+          if (sub === "bg-color") openColorPanel();
+          if (sub === "bg-size") openSizePanel();
+        });
+      });
+    }
+  });
+
+  // Keep aspect ratio logic
+  function updateAspect() {
+    const a = parseInt(widthInput.value);
+    const b = parseInt(heightInput.value);
+    if (a > 0 && b > 0) {
+      const gv = gcd(a, b);
+      aspectDisplay.textContent = `${a / gv}:${b / gv}`;
+    }
+  }
+
+  widthInput.addEventListener("input", () => {
+    if (keepCheck.checked) {
+      const newW = parseInt(widthInput.value) || 1;
+      heightInput.value = Math.round(newW * (currentH / currentW));
+    }
+    updateAspect();
+  });
+
+  heightInput.addEventListener("input", () => {
+    if (keepCheck.checked) {
+      const newH = parseInt(heightInput.value) || 1;
+      widthInput.value = Math.round(newH * (currentW / currentH));
+    }
+    updateAspect();
+  });
+
+  keepCheck.addEventListener("change", () => {
+    if (keepCheck.checked) {
+      currentW = parseInt(widthInput.value) || w;
+      currentH = parseInt(heightInput.value) || h;
+    }
+  });
+
+  // Preset dropdown
+  presetBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showDropdown(presetBtn, {
+      items: presets.map(p => ({
+        label: p.label,
+        action: "preset",
+        _w: p.w,
+        _h: p.h
+      })),
+      onItemClick: (item) => {
+        document.getElementById("size-preset-label").textContent = item.label;
+        widthInput.value = item._w;
+        heightInput.value = item._h;
+        currentW = item._w;
+        currentH = item._h;
+        updateAspect();
+      }
+    });
+  });
+
+  // Apply
+  applyBtn.addEventListener("click", () => {
+    const newW = parseInt(widthInput.value);
+    const newH = parseInt(heightInput.value);
+    if (newW > 0 && newH > 0) {
+      const c = document.getElementById("canvas");
+      const ctx = c.getContext("2d");
+      const srcImg = window.sourceImage;
+      if (!srcImg) return;
+      // Resize canvas
+      c.width = newW;
+      c.height = newH;
+      ctx.clearRect(0, 0, newW, newH);
+      ctx.drawImage(srcImg, 0, 0, newW, newH);
+      // Update sourceImage with resized version
+      const dataUrl = c.toDataURL();
+      const newImg = new Image();
+      newImg.onload = () => {
+        window.sourceImage = newImg;
+        window.displayImage = newImg;
+        if (typeof render === "function") render();
+      };
+      newImg.src = dataUrl;
+    }
+  });
 }

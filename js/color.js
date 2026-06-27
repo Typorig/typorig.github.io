@@ -30,7 +30,7 @@ const ColorModule = (() => {
     { name: "Brown",      hex: "#a52a2a" },
   ];
 
-  const GRADIENT_PRESETS = [
+  const BUILT_IN_PRESETS = [
     { name: "Sunset",        colors: ["#ff7e5f", "#feb47b"] },
     { name: "Ocean",         colors: ["#2193b0", "#6dd5ed"] },
     { name: "Forest",        colors: ["#134e5e", "#71b280"] },
@@ -47,6 +47,33 @@ const ColorModule = (() => {
     { name: "Twilight",      colors: ["#a8edea", "#fed6e3"] },
     { name: "Coral",         colors: ["#fc5c7d", "#6a82fb"] },
   ];
+
+  // Custom gradients are persisted in localStorage
+  let customPresets = [];
+
+  function loadCustomGradients() {
+    try {
+      const saved = localStorage.getItem("typorig_custom_gradients");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) customPresets = parsed;
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveCustomGradients() {
+    try {
+      localStorage.setItem("typorig_custom_gradients", JSON.stringify(customPresets));
+    } catch (e) { /* ignore */ }
+  }
+
+  // Computed full list: custom first, then built-in
+  function getAllPresets() {
+    return [...customPresets, ...BUILT_IN_PRESETS];
+  }
+
+  // Initialize
+  loadCustomGradients();
 
   let currentTab = "monochrome";
   let isOpen = false;
@@ -124,10 +151,17 @@ const ColorModule = (() => {
       }
 
       document.querySelectorAll(".gradient-preset").forEach((preset) => {
-        if (!preset.dataset.colors) return; // skip "+" btn
+        if (!preset.dataset.colors && preset.dataset.index === undefined) return; // skip "+" btn
         preset.addEventListener("click", () => {
-          const colors = JSON.parse(preset.dataset.colors);
-          applyGradient(colors);
+          if (preset.dataset.index !== undefined) {
+            const idx = parseInt(preset.dataset.index);
+            const gradPreset = getAllPresets()[idx];
+            console.log("[ColorModule] Clicked preset:", gradPreset);
+            applyGradient(gradPreset);
+          } else {
+            const colors = JSON.parse(preset.dataset.colors);
+            applyGradient({ colors });
+          }
         });
       });
     }
@@ -160,12 +194,39 @@ const ColorModule = (() => {
       <div style="margin-top:8px;font-size:11px;color:#999;margin-bottom:6px;">Presets</div>
       <div class="gradient-grid">
     `;
-    GRADIENT_PRESETS.forEach((g) => {
-      const dir = g.colors.length > 2 ? "135deg" : "to right";
-      const stops = g.colors.join(", ");
+    getAllPresets().forEach((g, idx) => {
+      let bgStyle = "";
+      if (g.isCustom && g.data) {
+        if (g.data.type === "linear") {
+          // Calculate angle for linear gradient
+          const dx = g.data.endPoint.x - g.data.startPoint.x;
+          const dy = g.data.endPoint.y - g.data.startPoint.y;
+          let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+          // Convert math angle to CSS angle (0deg = up, 90deg = right)
+          let cssAngle = angle + 90;
+          
+          const stopStrs = g.data.stops.map(s => `${s.color} ${Math.round(s.offset * 100)}%`).join(", ");
+          bgStyle = `background:linear-gradient(${Math.round(cssAngle)}deg, ${stopStrs})`;
+        } else {
+          // Match the canvas screen blending with multiple radial gradients
+          const bgImages = g.data.meshPoints.map(p => {
+            const x = Math.round(p.x * 100);
+            const y = Math.round(p.y * 100);
+            // In canvas, baseRadius was 0.8 * max(w, h). Let's use 80% as base for CSS.
+            const r = Math.round((p.radius !== undefined ? p.radius : 1.0) * 80);
+            return `radial-gradient(circle at ${x}% ${y}%, ${p.color} 0%, transparent ${r}%)`;
+          });
+          bgStyle = `background-image:${bgImages.join(", ")}; background-color:#000; background-blend-mode:screen;`;
+        }
+      } else {
+        const dir = g.colors.length > 2 ? "135deg" : "to right";
+        const stops = g.colors.join(", ");
+        bgStyle = `background:linear-gradient(${dir}, ${stops})`;
+      }
+
       html += `
-        <button class="gradient-preset" data-colors='${JSON.stringify(g.colors)}' title="${g.name}">
-          <span class="gradient-preview" style="background:linear-gradient(${dir}, ${stops});"></span>
+        <button class="gradient-preset" data-index="${idx}" title="${g.name}">
+          <span class="gradient-preview" style="${bgStyle};"></span>
           <span class="gradient-name">${g.name}</span>
         </button>
       `;
@@ -187,41 +248,109 @@ const ColorModule = (() => {
   function applyColor(hex) {
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
-    const sourceImage = window.sourceImage; // from app.js
-    if (!sourceImage) return;
 
-    // Composite: draw source over the solid color
-    canvas.width = sourceImage.width;
-    canvas.height = sourceImage.height;
+    canvas.width = canvas.width; // keep same size
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fill background with color
+    // Fill with solid color — replaces everything
     ctx.fillStyle = hex;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw original image on top
-    ctx.drawImage(sourceImage, 0, 0);
+    // Update sourceImage to the new canvas content
+    const dataUrl = canvas.toDataURL();
+    const img = new Image();
+    img.onload = () => {
+      window.sourceImage = img;
+      window.displayImage = img;
+      if (typeof window.updateCropButtonState === "function") window.updateCropButtonState();
+    };
+    img.src = dataUrl;
+    window.hasRealImage = false;
   }
 
-  function applyGradient(colors) {
+  /* ── Apply Gradient to canvas ── */
+  function applyGradientConfig(gradData) {
+    console.log("[ColorModule.applyGradientConfig] received gradData:", gradData);
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
-    const sourceImage = window.sourceImage;
-    if (!sourceImage) return;
 
-    canvas.width = sourceImage.width;
-    canvas.height = sourceImage.height;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Keep current dimensions
+    const W = canvas.width || 1200;
+    const H = canvas.height || 600;
+    ctx.clearRect(0, 0, W, H);
 
-    // Fill gradient background
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    const step = 1 / (colors.length - 1);
-    colors.forEach((c, i) => gradient.addColorStop(i * step, c));
+    if (gradData.type === "linear") {
+      const x1 = gradData.startPoint.x * W;
+      const y1 = gradData.startPoint.y * H;
+      const x2 = gradData.endPoint.x * W;
+      const y2 = gradData.endPoint.y * H;
+
+      const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+      gradData.stops.forEach(s => grad.addColorStop(s.offset, s.color));
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    } else {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "screen";
+      gradData.meshPoints.forEach((stop) => {
+        const x = stop.x * W;
+        const y = stop.y * H;
+        const baseRadius = Math.max(W, H) * 0.8;
+        const r = baseRadius * (stop.radius !== undefined ? stop.radius : 1.0);
+
+        const radGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
+        radGrad.addColorStop(0, stop.color);
+        radGrad.addColorStop(1, "transparent");
+
+        ctx.fillStyle = radGrad;
+        ctx.fillRect(0, 0, W, H);
+      });
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    // Update sourceImage — replaces everything
+    const dataUrl = canvas.toDataURL();
+    const img = new Image();
+    img.onload = () => {
+      window.sourceImage = img;
+      window.displayImage = img;
+      if (typeof window.updateCropButtonState === "function") window.updateCropButtonState();
+    };
+    img.src = dataUrl;
+    window.hasRealImage = false;
+  }
+
+  function applyGradient(preset) {
+    console.log("[ColorModule.applyGradient] preset:", preset);
+    if (preset.isCustom) {
+      applyGradientConfig(preset.data);
+      return;
+    }
+
+    // Default built-in presets — replaces everything
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width || 1200;
+    const H = canvas.height || 600;
+    ctx.clearRect(0, 0, W, H);
+
+    const gradient = ctx.createLinearGradient(0, 0, W, H);
+    const step = 1 / (preset.colors.length - 1);
+    preset.colors.forEach((c, i) => gradient.addColorStop(i * step, c));
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, W, H);
 
-    // Draw original image on top
-    ctx.drawImage(sourceImage, 0, 0);
+    // Update sourceImage
+    const dataUrl = canvas.toDataURL();
+    const img = new Image();
+    img.onload = () => {
+      window.sourceImage = img;
+      window.displayImage = img;
+      if (typeof window.updateCropButtonState === "function") window.updateCropButtonState();
+    };
+    img.src = dataUrl;
+    window.hasRealImage = false;
   }
 
   /* ── Open / Close ── */
@@ -251,14 +380,29 @@ const ColorModule = (() => {
         console.log("Sub action:", sub);
         if (sub === "bg-from-camera") { openCamera(); }
         if (sub === "bg-from-upload") { openUpload(); }
+        if (sub === "bg-transparent") { openTransparent(); }
+        if (sub === "bg-crop") { if (typeof CropModule !== "undefined") CropModule.open(); }
         if (sub === "bg-color") { ColorModule.open(); }
+        if (sub === "bg-size" && typeof openSizePanel === "function") { openSizePanel(); }
       });
     });
+  }
+
+  /* ── Add custom gradient to presets list ── */
+  function addGradientPreset(gradData, name) {
+    customPresets.unshift({
+      name: name || "Custom",
+      isCustom: true,
+      data: JSON.parse(JSON.stringify(gradData)) // deep copy
+    });
+    if (customPresets.length > 10) customPresets.pop(); // limit custom to 10
+    saveCustomGradients(); // persist to localStorage
+    if (isOpen && currentTab === "gradient") render();
   }
 
   function isActive() {
     return isOpen;
   }
 
-  return { open, close, isActive };
+  return { open, close, isActive, addGradientPreset };
 })();
