@@ -41,7 +41,9 @@ Typorig/
 ├── css/
 │   └── styles.css      # Stylesheets
 ├── js/
-│   └── app.js          # Core application logic
+│   ├── core/           # App core, Layer manager, Bar & Popup
+│   ├── text/           # Text layer properties & canvas transform
+│   └── modules/        # Reusable modules (Color, Gradient, Texture, Opacity, Relative Position, Crop)
 ├── wasm/               # WebAssembly modules (image processing)
 ├── font/               # Custom font assets
 └── README.md           # This file

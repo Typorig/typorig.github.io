@@ -12,9 +12,29 @@ document.querySelectorAll(".top-btn").forEach((btn) => {
       return;
     }
 
-    // Ruler / Layer: toggle switch (sticky)
-    if (action === "ruler" || action === "layer") {
+    // Ruler: toggle switch (sticky)
+    if (action === "ruler") {
       btn.classList.toggle("active");
+      return;
+    }
+
+    // Layer: toggle layer sidebar
+    if (action === "layer") {
+      btn.classList.toggle("active");
+      const layerSidebar = document.getElementById("layer-sidebar");
+      const body = document.getElementById("body");
+      
+      if (btn.classList.contains("active")) {
+        layerSidebar.classList.remove("hidden");
+        body.classList.add("layer-open");
+        // Update layer list
+        if (typeof updateLayerList === "function") {
+          updateLayerList();
+        }
+      } else {
+        layerSidebar.classList.add("hidden");
+        body.classList.remove("layer-open");
+      }
       return;
     }
 
@@ -38,9 +58,16 @@ document.querySelectorAll(".top-btn").forEach((btn) => {
       showDropdown(btn, {
         items: [
           { label: "Save as Project", action: "save-project", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>' },
-          { label: "Save as Image", action: "save-image", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>' },
+          { label: "Save as PNG", action: "save-png", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>' },
+          { label: "Save as JPG", action: "save-jpg", icon: '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>' },
         ],
-        onItemClick: (item) => console.log("Save:", item.action)
+        onItemClick: (item) => {
+          if (item.action === "save-png" || item.action === "save-jpg") {
+            exportImage(item.action === "save-png" ? "png" : "jpeg");
+          } else {
+            console.log("Save:", item.action);
+          }
+        }
       });
       return;
     }
@@ -110,9 +137,41 @@ document.querySelectorAll(".sidebar-section").forEach((sec) => {
     if (hasSub) {
       subSidebar.classList.remove("hidden");
       body.classList.add("sub-open");
+      
+      // Khôi phục sub-sidebar HTML gốc nếu đang ở panel tùy chỉnh (Size, Relative Position, v.v.)
+      if (window._savedSubHTML) {
+        subSidebar.innerHTML = window._savedSubHTML;
+        window._savedSubHTML = null;
+        // Rebind sub-item click listeners
+        document.querySelectorAll(".sub-item").forEach((item) => {
+          item.addEventListener("click", function subClick() {
+            document.querySelectorAll(".sub-item").forEach((i) => i.classList.remove("active"));
+            this.classList.add("active");
+            const sub = this.dataset.sub;
+            if (sub === "bg-from-camera") typeof openCamera === "function" && openCamera();
+            if (sub === "bg-from-upload") typeof openUpload === "function" && openUpload();
+            if (sub === "bg-transparent") typeof openTransparent === "function" && openTransparent();
+            if (sub === "bg-crop" && typeof CropModule !== "undefined") CropModule.open();
+            if (sub === "bg-color" && typeof openColorPanel === "function") openColorPanel();
+            if (sub === "bg-size" && typeof openSizePanel === "function") openSizePanel();
+          });
+        });
+      }
+
       // Hide all groups first, then show the active one
-      subGroups.forEach((g) => g.classList.add("hidden"));
-      const activeGroup = document.querySelector(`.sub-group[data-section="${section}"]`);
+      const currentSubGroups = document.querySelectorAll(".sub-group");
+      currentSubGroups.forEach((g) => g.classList.add("hidden"));
+      
+      // Nếu là text section và trước đó đã mở text-props hoặc có layer text đang chọn
+      let targetSection = section;
+      if (section === "text" && window.textTransform && window.textTransform.selectedLayer && window.textTransform.selectedLayer.type === "text") {
+        targetSection = "text-props";
+      }
+
+      let activeGroup = document.querySelector(`.sub-group[data-section="${targetSection}"]`);
+      if (!activeGroup && section === "text") {
+        activeGroup = document.querySelector(`.sub-group[data-section="text"]`);
+      }
       if (activeGroup) activeGroup.classList.remove("hidden");
     } else if (section === "setting") {
       // Setting opens as a popup — keep sub-sidebar as-is
@@ -441,12 +500,41 @@ function openTransparent() {
   ctx.clearRect(0, 0, W, H);
 
   // Update sourceImage to empty transparent
-  const dataUrl = canvas.toDataURL();
+  // Create a 1x1 transparent pixel instead of full canvas to save memory and easily identify it
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = 1;
+  tempCanvas.height = 1;
+  const dataUrl = tempCanvas.toDataURL();
+  
   const img = new Image();
   img.onload = () => {
+    // Set dimensions to match current canvas
+    img.width = W;
+    img.height = H;
+    
     window.sourceImage = img;
     window.displayImage = img;
-    if (typeof render === "function") render();
+    window.hasRealImage = false;
+    if (typeof window.updateCropButtonState === "function") {
+      window.updateCropButtonState();
+    }
+    
+    // Clear background layer if it exists
+    if (window.layerManager) {
+      const bgLayer = window.layerManager.layers.find(l => l.name === "Background");
+      if (bgLayer) {
+        bgLayer.ctx.clearRect(0, 0, bgLayer.canvas.width, bgLayer.canvas.height);
+        // Also clear the image data in the background layer
+        bgLayer.image = null;
+        // Clear any gradient/color data
+        if (window.ColorModule) {
+          window.ColorModule.lastBackground = null;
+        }
+      }
+      window.layerManager.render();
+    } else if (typeof render === "function") {
+      render();
+    }
   };
   img.src = dataUrl;
 }
@@ -656,12 +744,32 @@ function openSizePanel() {
       const ctx = c.getContext("2d");
       const srcImg = window.sourceImage;
       if (!srcImg) return;
-      // Resize canvas
+      const layerManager = window.layerManager || null;
+
+      if (layerManager && typeof layerManager.resizeAllLayers === "function") {
+        c.width = newW;
+        c.height = newH;
+        layerManager.resizeAllLayers(newW, newH);
+        if (typeof ColorModule !== "undefined" && typeof ColorModule.reapplyBackground === "function") {
+          ColorModule.reapplyBackground(false);
+        }
+        layerManager.render();
+        if (typeof window.updateLayerList === "function") window.updateLayerList();
+
+        const dataUrl = c.toDataURL();
+        const newImg = new Image();
+        newImg.onload = () => {
+          window.sourceImage = newImg;
+          window.displayImage = newImg;
+        };
+        newImg.src = dataUrl;
+        return;
+      }
+
       c.width = newW;
       c.height = newH;
       ctx.clearRect(0, 0, newW, newH);
       ctx.drawImage(srcImg, 0, 0, newW, newH);
-      // Update sourceImage with resized version
       const dataUrl = c.toDataURL();
       const newImg = new Image();
       newImg.onload = () => {
@@ -673,3 +781,77 @@ function openSizePanel() {
     }
   });
 }
+
+/* ── Export Image ── */
+function exportImage(type = "png") {
+  const canvas = document.getElementById("canvas");
+  if (!canvas) return;
+  
+  if (window.layerManager) {
+    window.layerManager.render();
+  }
+  
+  const link = document.createElement("a");
+  link.download = `typorig-export-${Date.now()}.${type === "jpeg" ? "jpg" : "png"}`;
+  link.href = canvas.toDataURL(type === "jpeg" ? "image/jpeg" : "image/png", 0.95);
+  link.click();
+}
+
+/* ── Layer Sidebar Controls ── */
+document.addEventListener("DOMContentLoaded", () => {
+  const layerCloseBtn = document.querySelector(".layer-sidebar-close");
+  if (layerCloseBtn) {
+    layerCloseBtn.addEventListener("click", () => {
+      const layerSidebar = document.getElementById("layer-sidebar");
+      const body = document.getElementById("body");
+      const layerBtn = document.querySelector('.top-btn[data-action="layer"]');
+      
+      layerSidebar.classList.add("hidden");
+      body.classList.remove("layer-open");
+      if (layerBtn) {
+        layerBtn.classList.remove("active");
+      }
+    });
+  }
+  
+  // Delete selected layers button
+  const deleteBtn = document.getElementById("layer-delete-selected");
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", () => {
+      const layerManager = window.layerManager;
+      const selectedLayers = window.selectedLayers;
+      
+      if (!layerManager || !selectedLayers || selectedLayers.size === 0) return;
+      
+      // Confirm deletion
+      const count = selectedLayers.size;
+      if (!confirm(`Bạn có chắc muốn xóa ${count} layer${count > 1 ? 's' : ''} đã chọn?`)) {
+        return;
+      }
+      
+      // Delete each selected layer (không thể xóa Background layer)
+      const toDelete = Array.from(selectedLayers);
+      toDelete.forEach(layerId => {
+        if (layerId !== 0) { // Không xóa Background layer
+          layerManager.deleteLayer(layerId);
+        }
+      });
+      
+      // Clear selection
+      selectedLayers.clear();
+      
+      // Re-render
+      layerManager.render();
+      if (typeof window.updateLayerList === "function") {
+        window.updateLayerList();
+      }
+
+      // Check if text layers still exist
+      const hasTextLayers = layerManager.layers.some(l => l.type === "text");
+      if (!hasTextLayers && window.textHandler && typeof window.textHandler.hideTextProperties === "function") {
+        window.textHandler.hideTextProperties();
+      }
+    });
+  }
+});
+

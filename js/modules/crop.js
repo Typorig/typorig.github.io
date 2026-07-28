@@ -664,6 +664,15 @@ const CropModule = (() => {
       newImg.onload = () => {
         window.sourceImage = newImg;
         window.displayImage = newImg;
+        if (window.layerManager) {
+          const bgLayer = window.layerManager.getBackgroundLayer();
+          if (bgLayer) {
+            bgLayer.canvas.width = sw;
+            bgLayer.canvas.height = sh;
+            bgLayer.ctx.clearRect(0, 0, sw, sh);
+            bgLayer.ctx.drawImage(newImg, 0, 0);
+          }
+        }
         if (typeof window.render === "function") window.render();
       };
       newImg.src = dataUrl;

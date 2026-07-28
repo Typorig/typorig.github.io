@@ -190,24 +190,52 @@ const GradientModule = (() => {
     // Apply
     document.getElementById("cg-apply-btn").addEventListener("click", () => {
       console.log("[GradientModule] Apply button clicked");
-      applyToCanvas();
       
+      const textTransform = window.textTransform;
+      const layerManager = window.layerManager;
+      let targetLayer = textTransform ? textTransform.selectedLayer : null;
+      if (!targetLayer || targetLayer.id === 0) {
+        if (layerManager) {
+          targetLayer = layerManager.layers.find(l => l.id === layerManager.activeLayerId && l.id !== 0);
+        }
+      }
+
+      let gradData;
+      if (type === "linear") {
+        gradData = {
+          type: "linear",
+          stops: getProcessedLinearStops(),
+          startPoint: { x: startPoint.x, y: startPoint.y },
+          endPoint: { x: endPoint.x, y: endPoint.y }
+        };
+      } else {
+        gradData = {
+          type: "radial",
+          meshPoints: meshPoints.map(p => ({ x: p.x, y: p.y, color: p.color, radius: p.radius }))
+        };
+      }
+
+      if (targetLayer && targetLayer.type === "text") {
+        targetLayer.fontColor = { kind: "custom", data: JSON.parse(JSON.stringify(gradData)) };
+        if (textTransform && typeof textTransform.redrawTextLayer === "function") {
+          textTransform.redrawTextLayer(targetLayer);
+        }
+        if (layerManager) {
+          layerManager.render();
+        }
+        if (textTransform && textTransform.selectedLayer === targetLayer && typeof textTransform.drawSelectionOverlay === "function") {
+          textTransform.drawSelectionOverlay(targetLayer);
+        }
+      } else {
+        applyToCanvas();
+      }
+
       // Save to ColorModule gradient presets list
       if (typeof ColorModule !== "undefined" && ColorModule.addGradientPreset) {
         if (type === "linear") {
-          const gradData = {
-            type: "linear",
-            stops: getProcessedLinearStops(),
-            startPoint: { x: startPoint.x, y: startPoint.y },
-            endPoint: { x: endPoint.x, y: endPoint.y }
-          };
           console.log("[GradientModule] Saving Linear gradient:", gradData);
           ColorModule.addGradientPreset(gradData, "Linear Custom");
         } else {
-          const gradData = {
-            type: "radial",
-            meshPoints: meshPoints.map(p => ({ x: p.x, y: p.y, color: p.color, radius: p.radius }))
-          };
           console.log("[GradientModule] Saving Radial gradient:", gradData);
           ColorModule.addGradientPreset(gradData, "Radial Custom");
         }

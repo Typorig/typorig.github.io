@@ -78,6 +78,113 @@ const ColorModule = (() => {
   let currentTab = "monochrome";
   let isOpen = false;
   let savedHTML = ""; // snapshot of original sub-sidebar HTML
+  let lastBackground = null;
+
+  function getGradientEndpointsForCssAngle(angleDeg, W, H) {
+    const theta = (angleDeg * Math.PI) / 180;
+    const dx = Math.sin(theta);
+    const dy = -Math.cos(theta);
+    const cx = W / 2;
+    const cy = H / 2;
+
+    const points = [];
+    const pushIfValid = (x, y, t) => {
+      if (x >= 0 && x <= W && y >= 0 && y <= H) {
+        points.push({ x, y, t });
+      }
+    };
+
+    if (dx !== 0) {
+      const t0 = (0 - cx) / dx;
+      pushIfValid(0, cy + t0 * dy, t0);
+      const tW = (W - cx) / dx;
+      pushIfValid(W, cy + tW * dy, tW);
+    }
+
+    if (dy !== 0) {
+      const t0 = (0 - cy) / dy;
+      pushIfValid(cx + t0 * dx, 0, t0);
+      const tH = (H - cy) / dy;
+      pushIfValid(cx + tH * dx, H, tH);
+    }
+
+    if (points.length < 2) {
+      return { x1: 0, y1: 0, x2: W, y2: H };
+    }
+
+    points.sort((a, b) => a.t - b.t);
+    const p1 = points[0];
+    const p2 = points[points.length - 1];
+    return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
+  }
+
+  function renderBackgroundFill(bgCtx, W, H, fill) {
+    if (!fill) return;
+
+    bgCtx.clearRect(0, 0, W, H);
+
+    if (fill.kind === "solid") {
+      bgCtx.fillStyle = fill.hex;
+      bgCtx.fillRect(0, 0, W, H);
+      return;
+    }
+
+    if (fill.kind === "preset") {
+      const { x1, y1, x2, y2 } = getGradientEndpointsForCssAngle(fill.angleDeg, W, H);
+      const gradient = bgCtx.createLinearGradient(x1, y1, x2, y2);
+      const step = 1 / (fill.colors.length - 1);
+      fill.colors.forEach((c, i) => gradient.addColorStop(i * step, c));
+      bgCtx.fillStyle = gradient;
+      bgCtx.fillRect(0, 0, W, H);
+      return;
+    }
+
+    if (fill.kind === "custom") {
+      const gradData = fill.data;
+      if (gradData.type === "linear") {
+        const x1 = gradData.startPoint.x * W;
+        const y1 = gradData.startPoint.y * H;
+        const x2 = gradData.endPoint.x * W;
+        const y2 = gradData.endPoint.y * H;
+
+        const grad = bgCtx.createLinearGradient(x1, y1, x2, y2);
+        gradData.stops.forEach(s => grad.addColorStop(s.offset, s.color));
+        bgCtx.fillStyle = grad;
+        bgCtx.fillRect(0, 0, W, H);
+      } else {
+        bgCtx.fillStyle = "#000";
+        bgCtx.fillRect(0, 0, W, H);
+        bgCtx.globalCompositeOperation = "screen";
+        gradData.meshPoints.forEach((stop) => {
+          const x = stop.x * W;
+          const y = stop.y * H;
+          const baseRadius = Math.max(W, H) * 0.8;
+          const r = baseRadius * (stop.radius !== undefined ? stop.radius : 1.0);
+
+          const radGrad = bgCtx.createRadialGradient(x, y, 0, x, y, r);
+          radGrad.addColorStop(0, stop.color);
+          radGrad.addColorStop(1, "transparent");
+
+          bgCtx.fillStyle = radGrad;
+          bgCtx.fillRect(0, 0, W, H);
+        });
+        bgCtx.globalCompositeOperation = "source-over";
+      }
+    }
+  }
+
+  function updateSourceFromCanvas() {
+    const canvas = document.getElementById("canvas");
+    const dataUrl = canvas.toDataURL();
+    const img = new Image();
+    img.onload = () => {
+      window.sourceImage = img;
+      window.displayImage = img;
+      if (typeof window.updateCropButtonState === "function") window.updateCropButtonState();
+    };
+    img.src = dataUrl;
+    window.hasRealImage = false;
+  }
 
   /* ── Render ── */
   function render() {
@@ -246,79 +353,149 @@ const ColorModule = (() => {
 
   /* ── Apply to canvas ── */
   function applyColor(hex) {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = canvas.width; // keep same size
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Fill with solid color — replaces everything
-    ctx.fillStyle = hex;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Update sourceImage to the new canvas content
-    const dataUrl = canvas.toDataURL();
-    const img = new Image();
-    img.onload = () => {
-      window.sourceImage = img;
-      window.displayImage = img;
-      if (typeof window.updateCropButtonState === "function") window.updateCropButtonState();
-    };
-    img.src = dataUrl;
-    window.hasRealImage = false;
-  }
-
-  /* ── Apply Gradient to canvas ── */
-  function applyGradientConfig(gradData) {
-    console.log("[ColorModule.applyGradientConfig] received gradData:", gradData);
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-
-    // Keep current dimensions
-    const W = canvas.width || 1200;
-    const H = canvas.height || 600;
-    ctx.clearRect(0, 0, W, H);
-
-    if (gradData.type === "linear") {
-      const x1 = gradData.startPoint.x * W;
-      const y1 = gradData.startPoint.y * H;
-      const x2 = gradData.endPoint.x * W;
-      const y2 = gradData.endPoint.y * H;
-
-      const grad = ctx.createLinearGradient(x1, y1, x2, y2);
-      gradData.stops.forEach(s => grad.addColorStop(s.offset, s.color));
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-    } else {
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, W, H);
-      ctx.globalCompositeOperation = "screen";
-      gradData.meshPoints.forEach((stop) => {
-        const x = stop.x * W;
-        const y = stop.y * H;
-        const baseRadius = Math.max(W, H) * 0.8;
-        const r = baseRadius * (stop.radius !== undefined ? stop.radius : 1.0);
-
-        const radGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
-        radGrad.addColorStop(0, stop.color);
-        radGrad.addColorStop(1, "transparent");
-
-        ctx.fillStyle = radGrad;
-        ctx.fillRect(0, 0, W, H);
-      });
-      ctx.globalCompositeOperation = "source-over";
+    const textTransform = window.textTransform;
+    const layerManager = window.layerManager || null;
+    let targetLayer = textTransform ? textTransform.selectedLayer : null;
+    if (!targetLayer || targetLayer.id === 0) {
+      if (layerManager) {
+        targetLayer = layerManager.layers.find(l => l.id === layerManager.activeLayerId && l.id !== 0);
+      }
     }
 
-    // Update sourceImage — replaces everything
-    const dataUrl = canvas.toDataURL();
-    const img = new Image();
-    img.onload = () => {
-      window.sourceImage = img;
-      window.displayImage = img;
-      if (typeof window.updateCropButtonState === "function") window.updateCropButtonState();
-    };
-    img.src = dataUrl;
-    window.hasRealImage = false;
+    if (targetLayer && targetLayer.type === "text") {
+      targetLayer.fontColor = hex;
+      if (textTransform && typeof textTransform.redrawTextLayer === "function") {
+        textTransform.redrawTextLayer(targetLayer);
+      }
+      if (layerManager) {
+        layerManager.render();
+      }
+      if (textTransform && textTransform.selectedLayer === targetLayer && typeof textTransform.drawSelectionOverlay === "function") {
+        textTransform.drawSelectionOverlay(targetLayer);
+      }
+      return;
+    }
+
+    const canvas = document.getElementById("canvas");
+    lastBackground = { kind: "solid", hex };
+
+    if (layerManager && typeof layerManager.getBackgroundLayer === "function") {
+      const bg = layerManager.getBackgroundLayer();
+      if (!bg) return;
+      const W = canvas.width;
+      const H = canvas.height;
+      renderBackgroundFill(bg.ctx, W, H, lastBackground);
+      layerManager.render();
+      if (typeof window.updateLayerList === "function") window.updateLayerList();
+      updateSourceFromCanvas();
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = hex;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    updateSourceFromCanvas();
+  }
+
+  /* ── Helper tạo Gradient Fill cho Context ── */
+  function createGradientFillForCtx(ctx, bounds, fill) {
+    if (!fill || !bounds) return null;
+    const x = bounds.x;
+    const y = bounds.y;
+    const w = bounds.width || 100;
+    const h = bounds.height || 50;
+
+    if (fill.kind === "preset") {
+      const { x1, y1, x2, y2 } = getGradientEndpointsForCssAngle(fill.angleDeg, w, h);
+      const gradient = ctx.createLinearGradient(x + x1, y + y1, x + x2, y + y2);
+      const step = 1 / (fill.colors.length - 1);
+      fill.colors.forEach((c, i) => gradient.addColorStop(i * step, c));
+      return gradient;
+    }
+
+    if (fill.kind === "custom") {
+      const gradData = fill.data;
+      if (gradData.type === "linear") {
+        const x1 = x + gradData.startPoint.x * w;
+        const y1 = y + gradData.startPoint.y * h;
+        const x2 = x + gradData.endPoint.x * w;
+        const y2 = y + gradData.endPoint.y * h;
+        const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+        gradData.stops.forEach(s => grad.addColorStop(s.offset, s.color));
+        return grad;
+      }
+    }
+    return null;
+  }
+
+  function renderMeshToCanvas(fill, width, height) {
+    const offCanvas = document.createElement("canvas");
+    offCanvas.width = Math.max(1, Math.round(width));
+    offCanvas.height = Math.max(1, Math.round(height));
+    const offCtx = offCanvas.getContext("2d");
+    renderBackgroundFill(offCtx, offCanvas.width, offCanvas.height, fill);
+    return offCanvas;
+  }
+
+  function createMeshPatternForBounds(ctx, bounds, fill) {
+    if (!fill || !bounds) return null;
+    const w = Math.max(1, Math.round(bounds.width));
+    const h = Math.max(1, Math.round(bounds.height));
+    const offCanvas = document.createElement("canvas");
+    offCanvas.width = w;
+    offCanvas.height = h;
+    const offCtx = offCanvas.getContext("2d");
+    renderBackgroundFill(offCtx, w, h, fill);
+
+    const pattern = ctx.createPattern(offCanvas, "no-repeat");
+    if (pattern && typeof DOMMatrix !== "undefined") {
+      const matrix = new DOMMatrix().translate(bounds.x, bounds.y);
+      pattern.setTransform(matrix);
+    }
+    return pattern;
+  }
+
+  /* ── Apply Gradient to canvas (vào Background layer hoặc Text layer) ── */
+  function applyGradientConfig(gradData) {
+    console.log("[ColorModule.applyGradientConfig] received gradData:", gradData);
+    const textTransform = window.textTransform;
+    const layerManager = window.layerManager || null;
+    let targetLayer = textTransform ? textTransform.selectedLayer : null;
+    if (!targetLayer || targetLayer.id === 0) {
+      if (layerManager) {
+        targetLayer = layerManager.layers.find(l => l.id === layerManager.activeLayerId && l.id !== 0);
+      }
+    }
+
+    if (targetLayer && targetLayer.type === "text") {
+      targetLayer.fontColor = { kind: "custom", data: JSON.parse(JSON.stringify(gradData)) };
+      if (textTransform && typeof textTransform.redrawTextLayer === "function") {
+        textTransform.redrawTextLayer(targetLayer);
+      }
+      if (layerManager) {
+        layerManager.render();
+      }
+      if (textTransform && textTransform.selectedLayer === targetLayer && typeof textTransform.drawSelectionOverlay === "function") {
+        textTransform.drawSelectionOverlay(targetLayer);
+      }
+      return;
+    }
+
+    const canvas = document.getElementById("canvas");
+    if (!layerManager || typeof layerManager.getBackgroundLayer !== "function") return;
+
+    const bg = layerManager.getBackgroundLayer();
+    if (!bg) return;
+    const W = canvas.width;
+    const H = canvas.height;
+    lastBackground = { kind: "custom", data: JSON.parse(JSON.stringify(gradData)) };
+    renderBackgroundFill(bg.ctx, W, H, lastBackground);
+    layerManager.render();
+    if (typeof window.updateLayerList === "function") window.updateLayerList();
+
+    // Update sourceImage
+    updateSourceFromCanvas();
   }
 
   function applyGradient(preset) {
@@ -328,29 +505,73 @@ const ColorModule = (() => {
       return;
     }
 
-    // Default built-in presets — replaces everything
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const W = canvas.width || 1200;
-    const H = canvas.height || 600;
-    ctx.clearRect(0, 0, W, H);
+    const textTransform = window.textTransform;
+    const layerManager = window.layerManager || null;
+    let targetLayer = textTransform ? textTransform.selectedLayer : null;
+    if (!targetLayer || targetLayer.id === 0) {
+      if (layerManager) {
+        targetLayer = layerManager.layers.find(l => l.id === layerManager.activeLayerId && l.id !== 0);
+      }
+    }
 
-    const gradient = ctx.createLinearGradient(0, 0, W, H);
-    const step = 1 / (preset.colors.length - 1);
-    preset.colors.forEach((c, i) => gradient.addColorStop(i * step, c));
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, W, H);
+    const angleDeg = preset.colors.length > 2 ? 135 : 90;
+    const gradFill = { kind: "preset", colors: [...preset.colors], angleDeg };
+
+    if (targetLayer && targetLayer.type === "text") {
+      targetLayer.fontColor = gradFill;
+      if (textTransform && typeof textTransform.redrawTextLayer === "function") {
+        textTransform.redrawTextLayer(targetLayer);
+      }
+      if (layerManager) {
+        layerManager.render();
+      }
+      if (textTransform && textTransform.selectedLayer === targetLayer && typeof textTransform.drawSelectionOverlay === "function") {
+        textTransform.drawSelectionOverlay(targetLayer);
+      }
+      return;
+    }
+
+    const canvas = document.getElementById("canvas");
+    if (!layerManager || typeof layerManager.getBackgroundLayer !== "function") return;
+
+    const bg = layerManager.getBackgroundLayer();
+    if (!bg) return;
+    const W = canvas.width;
+    const H = canvas.height;
+    lastBackground = gradFill;
+    renderBackgroundFill(bg.ctx, W, H, lastBackground);
+    layerManager.render();
+    if (typeof window.updateLayerList === "function") window.updateLayerList();
 
     // Update sourceImage
-    const dataUrl = canvas.toDataURL();
-    const img = new Image();
-    img.onload = () => {
-      window.sourceImage = img;
-      window.displayImage = img;
-      if (typeof window.updateCropButtonState === "function") window.updateCropButtonState();
-    };
-    img.src = dataUrl;
-    window.hasRealImage = false;
+    updateSourceFromCanvas();
+  }
+
+  function reapplyBackground(updateSourceImage = true) {
+    const canvas = document.getElementById("canvas");
+    const layerManager = window.layerManager || null;
+    if (!canvas || !layerManager || typeof layerManager.getBackgroundLayer !== "function") return;
+
+    const bg = layerManager.getBackgroundLayer();
+    if (!bg) return;
+
+    const W = canvas.width;
+    const H = canvas.height;
+    
+    if (lastBackground) {
+      renderBackgroundFill(bg.ctx, W, H, lastBackground);
+    } else if (!window.hasRealImage && window.displayImage && window.displayImage.src.length > 100) {
+      // If there's no lastBackground but we have an image, draw it
+      bg.ctx.clearRect(0, 0, W, H);
+      bg.ctx.drawImage(window.displayImage, 0, 0, W, H);
+    } else {
+      // Transparent
+      bg.ctx.clearRect(0, 0, W, H);
+    }
+    
+    layerManager.render();
+    if (typeof window.updateLayerList === "function") window.updateLayerList();
+    if (updateSourceImage) updateSourceFromCanvas();
   }
 
   /* ── Open / Close ── */
@@ -386,6 +607,12 @@ const ColorModule = (() => {
         if (sub === "bg-size" && typeof openSizePanel === "function") { openSizePanel(); }
       });
     });
+
+    // Rebind property click for text properties if textPropsGroup exists
+    const textPropsGroup = document.querySelector('.sub-group[data-section="text-props"]');
+    if (textPropsGroup && window.textHandler && typeof window.textHandler.initEventListeners === "function") {
+      // Re-trigger property checks if needed
+    }
   }
 
   /* ── Add custom gradient to presets list ── */
@@ -404,5 +631,16 @@ const ColorModule = (() => {
     return isOpen;
   }
 
-  return { open, close, isActive, addGradientPreset };
+  return {
+    open,
+    close,
+    isActive,
+    addGradientPreset,
+    reapplyBackground,
+    createGradientFillForCtx,
+    renderMeshToCanvas,
+    createMeshPatternForBounds,
+    get lastBackground() { return lastBackground; },
+    set lastBackground(val) { lastBackground = val; }
+  };
 })();
