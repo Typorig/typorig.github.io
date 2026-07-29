@@ -90,6 +90,8 @@ class TextHandler {
       this.openOpacityPanel();
     } else if (propType === "rotate") {
       this.openRotatePanel();
+    } else if (propType === "style") {
+      this.openStylePanel();
     }
   }
 
@@ -310,6 +312,150 @@ class TextHandler {
     if (textPropsGroup && typeof OpacityModule !== "undefined") {
       OpacityModule.open(textPropsGroup);
     }
+  }
+
+  /**
+   * Hiển thị panel Style trong sub-sidebar
+   */
+  openStylePanel() {
+    const textPropsGroup = document.querySelector('.sub-group[data-section="text-props"]');
+    if (!textPropsGroup) return;
+
+    if (!textPropsGroup.querySelector(".style-panel")) {
+      textPropsGroup.dataset._savedInner = textPropsGroup.innerHTML;
+    }
+
+    const textTransform = window.textTransform;
+    const layerManager = window.layerManager;
+    let targetLayer = textTransform ? textTransform.selectedLayer : null;
+    if (!targetLayer || targetLayer.id === 0) {
+      if (layerManager) {
+        targetLayer = layerManager.layers.find(l => l.id === layerManager.activeLayerId && l.id !== 0);
+      }
+    }
+
+    const isBold = targetLayer && targetLayer.fontWeight === "bold";
+    const isItalic = targetLayer && targetLayer.fontStyle === "italic";
+    const currentDec = targetLayer && targetLayer.textDecoration ? targetLayer.textDecoration : (targetLayer && targetLayer.underline ? 'underline' : 'none');
+
+    const panelEl = document.createElement("div");
+    panelEl.className = "style-panel";
+    panelEl.style.cssText = "display:flex;flex-direction:column;gap:12px;user-select:none;padding:12px 8px;";
+
+    const backBtn = document.createElement("button");
+    backBtn.id = "style-back-btn";
+    backBtn.className = "sub-item";
+    backBtn.style.marginBottom = "4px";
+    backBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      <span>Back</span>
+    `;
+    backBtn.addEventListener("click", () => {
+      if (textPropsGroup.dataset._savedInner) {
+        textPropsGroup.innerHTML = textPropsGroup.dataset._savedInner;
+        delete textPropsGroup.dataset._savedInner;
+      }
+    });
+    panelEl.appendChild(backBtn);
+
+    const btnGrid = document.createElement("div");
+    btnGrid.style.cssText = "display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;";
+
+    const btnStyle = (active) => `
+      padding:10px 4px;background:${active ? '#00f260' : '#2a2a2a'};
+      border:1px solid ${active ? '#00f260' : '#444'};border-radius:6px;
+      color:${active ? '#000' : '#fff'};cursor:pointer;display:flex;
+      align-items:center;justify-content:center;font-size:15px;font-weight:bold;
+    `;
+
+    btnGrid.innerHTML = `
+      <button id="style-bold-btn" style="${btnStyle(isBold)}" title="Bold (In đậm)">B</button>
+      <button id="style-italic-btn" style="${btnStyle(isItalic)}" title="Italic (In nghiêng)"><i>I</i></button>
+      <button id="style-underline-btn" style="${btnStyle(currentDec === 'underline')}" title="Underline (Gạch chân)"><u>U</u></button>
+      <button id="style-double-btn" style="${btnStyle(currentDec === 'double-underline')}" title="Double Underline (Gạch đôi)"><span style="border-bottom:3px double currentColor;padding-bottom:2px;">O</span></button>
+      <button id="style-strike-btn" style="${btnStyle(currentDec === 'strikethrough')}" title="Strikethrough (Gạch ngang chữ)"><s>S</s></button>
+      <button id="style-dashed-btn" style="${btnStyle(currentDec === 'dashed-underline')}" title="Dashed Underline (Gạch chân đứt nét)"><span style="border-bottom:2px dashed currentColor;">H</span></button>
+      <button id="style-wavy-btn" style="${btnStyle(currentDec === 'wavy-underline')}" title="Wavy Underline (Gạch sóng)"><span style="text-decoration:wavy underline;">W</span></button>
+      <button id="style-dotted-btn" style="${btnStyle(currentDec === 'dotted-underline')}" title="Dotted Underline (Gạch dấu chấm)"><span style="border-bottom:2px dotted currentColor;">T</span></button>
+      <button id="style-reset-btn" style="${btnStyle(false)};grid-column: span 4;" title="Clear Style (Xóa Style)">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      </button>
+    `;
+    panelEl.appendChild(btnGrid);
+
+    textPropsGroup.innerHTML = "";
+    textPropsGroup.appendChild(panelEl);
+
+    const getActiveTextLayer = () => {
+      const tt = window.textTransform;
+      const lm = window.layerManager;
+      let layer = tt ? tt.selectedLayer : null;
+      if (!layer || layer.id === 0) {
+        if (lm) {
+          layer = lm.layers.find(l => l.id === lm.activeLayerId && l.id !== 0);
+        }
+      }
+      return layer;
+    };
+
+    const updateAndRedraw = (layer) => {
+      if (!layer) return;
+      const tt = window.textTransform;
+      const lm = window.layerManager;
+      if (tt && typeof tt.redrawTextLayer === "function") {
+        tt.redrawTextLayer(layer);
+      }
+      if (lm) lm.render();
+      if (tt && tt.selectedLayer === layer && typeof tt.drawSelectionOverlay === "function") {
+        tt.drawSelectionOverlay(layer);
+      }
+      this.openStylePanel();
+    };
+
+    const setDecoration = (type) => {
+      const layer = getActiveTextLayer();
+      if (layer && layer.type === "text") {
+        layer.textDecoration = layer.textDecoration === type ? 'none' : type;
+        layer.underline = layer.textDecoration === 'underline';
+        updateAndRedraw(layer);
+      }
+    };
+
+    // Events
+    panelEl.querySelector("#style-bold-btn").addEventListener("click", () => {
+      const layer = getActiveTextLayer();
+      if (layer && layer.type === "text") {
+        layer.fontWeight = layer.fontWeight === "bold" ? "normal" : "bold";
+        updateAndRedraw(layer);
+      }
+    });
+
+    panelEl.querySelector("#style-italic-btn").addEventListener("click", () => {
+      const layer = getActiveTextLayer();
+      if (layer && layer.type === "text") {
+        layer.fontStyle = layer.fontStyle === "italic" ? "normal" : "italic";
+        updateAndRedraw(layer);
+      }
+    });
+
+    panelEl.querySelector("#style-underline-btn").addEventListener("click", () => setDecoration('underline'));
+    panelEl.querySelector("#style-double-btn").addEventListener("click", () => setDecoration('double-underline'));
+    panelEl.querySelector("#style-strike-btn").addEventListener("click", () => setDecoration('strikethrough'));
+    panelEl.querySelector("#style-dashed-btn").addEventListener("click", () => setDecoration('dashed-underline'));
+    panelEl.querySelector("#style-wavy-btn").addEventListener("click", () => setDecoration('wavy-underline'));
+    panelEl.querySelector("#style-dotted-btn").addEventListener("click", () => setDecoration('dotted-underline'));
+
+    // Reset Style (Trash Icon)
+    panelEl.querySelector("#style-reset-btn").addEventListener("click", () => {
+      const layer = getActiveTextLayer();
+      if (layer && layer.type === "text") {
+        layer.fontWeight = "normal";
+        layer.fontStyle = "normal";
+        layer.textDecoration = "none";
+        layer.underline = false;
+        updateAndRedraw(layer);
+      }
+    });
   }
 
   /**

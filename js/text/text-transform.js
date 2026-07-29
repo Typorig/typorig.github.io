@@ -60,12 +60,18 @@ class TextTransform {
     if (!layer || layer.type !== 'text' || layer.text === null || layer.text === undefined) return null;
     
     const ctx = layer.ctx;
-    ctx.font = `${layer.fontSize}px ${layer.fontFamily}`;
+    const weight = layer.fontWeight || 'normal';
+    const style = layer.fontStyle || 'normal';
+    ctx.font = `${style} ${weight} ${layer.fontSize}px ${layer.fontFamily}`;
     const lines = String(layer.text).split("\n");
     const widths = lines.map(line => ctx.measureText(line).width);
     const width = Math.max(10, ...widths);
     const lineHeight = Math.round(layer.fontSize * 1.2);
-    const height = Math.max(layer.fontSize, (Math.max(1, lines.length) - 1) * lineHeight + layer.fontSize);
+
+    // Khoảng trống phía dưới baseline cho đuôi chữ (g,p,q,y) và gạch chân
+    const extraBottom = Math.round(layer.fontSize * 0.35);
+
+    const height = Math.max(layer.fontSize, (Math.max(1, lines.length) - 1) * lineHeight + layer.fontSize + extraBottom);
     
     const pLeft = layer.paddingLeft || 0;
     const pRight = layer.paddingRight || 0;
@@ -79,7 +85,7 @@ class TextTransform {
 
     const boundsX = x0 - pLeft;
     const boundsWidth = Math.max(1, width + pLeft + pRight);
-    const bottomBaselineY = layer.y + Math.max(0, lines.length - 1) * lineHeight;
+    const bottomBaselineY = layer.y + Math.max(0, lines.length - 1) * lineHeight + extraBottom;
     
     return {
       x: boundsX,
@@ -381,7 +387,9 @@ class TextTransform {
     layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
     
     // Vẽ lại text
-    layer.ctx.font = `${layer.fontSize}px ${layer.fontFamily}`;
+    const weight = layer.fontWeight || 'normal';
+    const style = layer.fontStyle || 'normal';
+    layer.ctx.font = `${style} ${weight} ${layer.fontSize}px ${layer.fontFamily}`;
 
     const bounds = this.getTextBounds(layer);
     let isPatternFill = false;
@@ -487,7 +495,85 @@ class TextTransform {
     }
 
     for (let i = 0; i < lines.length; i++) {
-      layer.ctx.fillText(lines[i], drawX, layer.y + i * lineHeight);
+      const lineY = layer.y + i * lineHeight;
+      layer.ctx.fillText(lines[i], drawX, lineY);
+
+      // Text Decoration (Underline, Double, Strikethrough, Dashed, Wavy, Dotted)
+      const dec = layer.textDecoration || (layer.underline ? 'underline' : 'none');
+      if (dec !== 'none' && lines[i]) {
+        const textWidth = layer.ctx.measureText(lines[i]).width;
+        let startX = drawX;
+        if (layer.textAlign === 'center') {
+          startX = drawX - textWidth / 2;
+        } else if (layer.textAlign === 'right') {
+          startX = drawX - textWidth;
+        }
+
+        const fontSize = layer.fontSize;
+        const strokeWidth = Math.max(1, Math.round(fontSize * 0.06));
+        const underlineY = lineY + Math.round(fontSize * 0.15);
+        const strikeY = lineY - Math.round(fontSize * 0.3);
+
+        layer.ctx.save();
+        layer.ctx.strokeStyle = layer.ctx.fillStyle;
+        layer.ctx.lineWidth = strokeWidth;
+
+        if (dec === 'underline') {
+          layer.ctx.beginPath();
+          layer.ctx.moveTo(startX, underlineY);
+          layer.ctx.lineTo(startX + textWidth, underlineY);
+          layer.ctx.stroke();
+        } else if (dec === 'double-underline') {
+          const offset = Math.max(2, Math.round(fontSize * 0.08));
+          layer.ctx.beginPath();
+          layer.ctx.moveTo(startX, underlineY - offset / 2);
+          layer.ctx.lineTo(startX + textWidth, underlineY - offset / 2);
+          layer.ctx.moveTo(startX, underlineY + offset / 2);
+          layer.ctx.lineTo(startX + textWidth, underlineY + offset / 2);
+          layer.ctx.stroke();
+        } else if (dec === 'strikethrough') {
+          layer.ctx.beginPath();
+          layer.ctx.moveTo(startX, strikeY);
+          layer.ctx.lineTo(startX + textWidth, strikeY);
+          layer.ctx.stroke();
+        } else if (dec === 'dashed-underline') {
+          const dashLen = Math.max(3, Math.round(fontSize * 0.15));
+          layer.ctx.setLineDash([dashLen, dashLen]);
+          layer.ctx.beginPath();
+          layer.ctx.moveTo(startX, underlineY);
+          layer.ctx.lineTo(startX + textWidth, underlineY);
+          layer.ctx.stroke();
+        } else if (dec === 'dotted-underline') {
+          const dotRadius = Math.max(1.5, Math.round(fontSize * 0.04));
+          const step = dotRadius * 3;
+          layer.ctx.fillStyle = layer.ctx.strokeStyle;
+          for (let x = startX; x <= startX + textWidth; x += step) {
+            layer.ctx.beginPath();
+            layer.ctx.arc(x, underlineY, dotRadius, 0, Math.PI * 2);
+            layer.ctx.fill();
+          }
+        } else if (dec === 'wavy-underline') {
+          const wavelength = Math.max(4, Math.round(fontSize * 0.15));
+          const amplitude = Math.max(1.5, Math.round(fontSize * 0.05));
+          layer.ctx.beginPath();
+          let x = startX;
+          layer.ctx.moveTo(x, underlineY);
+          while (x < startX + textWidth) {
+            layer.ctx.quadraticCurveTo(
+              x + wavelength / 4, underlineY - amplitude,
+              x + wavelength / 2, underlineY
+            );
+            layer.ctx.quadraticCurveTo(
+              x + (3 * wavelength) / 4, underlineY + amplitude,
+              x + wavelength, underlineY
+            );
+            x += wavelength;
+          }
+          layer.ctx.stroke();
+        }
+
+        layer.ctx.restore();
+      }
     }
 
     if (bounds) {
@@ -517,11 +603,11 @@ class TextTransform {
       ctx.translate(-centerX, -centerY);
     }
 
-    // Vẽ border xung quanh text
+    // Vẽ border xung quanh text (padding rộng để không cắt đuôi chữ và gạch chân)
     ctx.strokeStyle = '#00f260';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
-    ctx.strokeRect(bounds.x - 5, bounds.y - 5, bounds.width + 10, bounds.height + 10);
+    ctx.strokeRect(bounds.x - 10, bounds.y - 10, bounds.width + 20, bounds.height + 20);
     ctx.setLineDash([]);
     
     // Vẽ resize handle

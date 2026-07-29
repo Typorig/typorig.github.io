@@ -21,6 +21,10 @@ class Layer {
     this.text = null;
     this.fontSize = 48;
     this.fontFamily = 'Arial';
+    this.fontWeight = 'normal';   // 'normal' | 'bold'
+    this.fontStyle = 'normal';    // 'normal' | 'italic'
+    this.textDecoration = 'none'; // 'none' | 'underline' | 'double-underline' | 'strikethrough' | 'dashed-underline' | 'wavy-underline' | 'dotted-underline'
+    this.underline = false;       // tương thích ngược
     this.fontColor = '#000000';
     this.textAlign = 'left';
     this.paddingLeft = 0;
