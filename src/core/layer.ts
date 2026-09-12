@@ -50,6 +50,12 @@ export class Layer {
   paddingRight = 0;
   textureImage: HTMLImageElement | null = null;
   textureScale = 1.0;
+  // Cache cho texture pattern (tránh tạo mới mỗi frame)
+  _textureCacheCanvas: HTMLCanvasElement | null = null;
+  _textureCacheW = 0;
+  _textureCacheH = 0;
+  _textureCacheImg: HTMLImageElement | null = null;
+  _textureCacheScale = -1;
   x = 0;
   y = 0;
 

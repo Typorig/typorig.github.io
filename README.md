@@ -1,53 +1,101 @@
 # Typorig
 
-**Typorig** is a browser-based image editing tool that runs entirely on the frontend. Built with vanilla web technologies and WebAssembly (WASM), it requires no complex frameworks or libraries such as React, Vue, or Angular.
+**Typorig** is a browser-based image editing tool that runs entirely on the frontend. Built with TypeScript, Vite, and WebAssembly (WASM) — no heavy frameworks like React, Vue, or Angular. Uses a custom JSX runtime for lightweight DOM rendering.
 
 ## Features
 
 - **Pure frontend** — All processing happens in the browser. No server-side dependencies.
-- **Vanilla Web + WASM** — Lightweight and fast, leveraging WebAssembly for performance-critical operations.
-- **Easy to use** — Simple, intuitive interface designed for quick edits.
-- **No installation needed** — Works directly in any modern web browser.
+- **TypeScript + Custom JSX** — Type-safe codebase with a minimal JSX runtime (`h` / `Fragment`) for real DOM creation — no virtual DOM overhead.
+- **WebAssembly (WASM)** — High-performance image processing via C/C++ compiled to WASM.
+- **Layer system** — Multi-layer canvas with z-ordering, opacity, lock, visibility, and drag-to-reorder.
+- **Text editing** — Rich text layers with font family, size, weight, style, color, gradient, mesh fill, texture fill, curve bend, padding, and text alignment.
+- **Modules** — Color picker, Gradient, Texture, Opacity, Crop, Rotate, Curve, Relative Position, Background sub-panel.
+- **Auto deploy** — GitHub Actions workflow builds and deploys to GitHub Pages on every push.
 
 ## Comparison with Other Tools
 
 | Tool | Typorig Advantage |
 |------|-------------------|
-| **Photopea** | Typorig is designed to be simpler and more beginner-friendly, focusing on ease of use over complexity. |
-| **PixelLab (mobile)** | PixelLab is great but lacks a web or desktop version. Typorig works on any platform with a browser. |
-| **Canva** | Basic features like adding custom fonts often require payment. Gradient color design is very limited. Typorig offers more freedom. |
-| **Adobe Photoshop** | Overly complex, forces app installation or extension/add-on setup. No adequate mobile version. Typorig runs instantly in the browser with no setup. |
+| **Photopea** | Simpler and more beginner-friendly, focusing on ease of use over complexity. |
+| **PixelLab (mobile)** | PixelLab lacks a web or desktop version. Typorig works on any platform with a browser. |
+| **Canva** | Basic features like custom fonts often require payment. Gradient design is very limited. Typorig offers more freedom. |
+| **Adobe Photoshop** | Overly complex, forces app installation. No adequate mobile version. Typorig runs instantly in the browser. |
 
 ## Tech Stack
 
-- **HTML / CSS / JavaScript** — Vanilla frontend
-- **WebAssembly (WASM)** — High-performance image processing
-- No frameworks (React, Vue, Angular, etc.)
-- No external libraries
+- **TypeScript** — Strict mode, ESNext target
+- **Vite** — Dev server with HMR, production bundling
+- **Custom JSX runtime** — `h()` / `Fragment` for real DOM (no React)
+- **WebAssembly (WASM)** — C/C++ image processing modules
+- **GitHub Actions** — CI/CD auto deploy to GitHub Pages
 
 ## Getting Started
 
-1. Open `index.html` in a modern web browser.
-2. Upload or load an image.
-3. Start editing directly in the browser.
+```bash
+# Install dependencies
+npm install
 
-> No build steps, no package managers, no configuration needed.
+# Start dev server (http://localhost:3000)
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
 
 ## Project Structure
 
 ```
 Typorig/
-├── index.html          # Main entry point
+├── index.html              # Main entry point
 ├── css/
-│   └── styles.css      # Stylesheets
-├── js/
-│   ├── core/           # App core, Layer manager, Bar & Popup
-│   ├── text/           # Text layer properties & canvas transform
-│   └── modules/        # Reusable modules (Color, Gradient, Texture, Opacity, Relative Position, Crop)
-├── wasm/               # WebAssembly modules (image processing)
-├── font/               # Custom font assets
-└── README.md           # This file
+│   └── styles.css          # Stylesheets
+├── src/
+│   ├── main.tsx            # App bootstrap & sidebar/event wiring
+│   ├── core/
+│   │   ├── layer.ts        # Layer & LayerManager (multi-layer canvas)
+│   │   ├── bar-actions.tsx  # Sidebar & toolbar actions
+│   │   ├── event-bus.ts    # Global event bus
+│   │   └── wasm-filter.ts  # WASM filter bindings
+│   ├── text/
+│   │   ├── text.tsx        # Text UI controller & property panels
+│   │   └── text-transform.ts # Canvas text rendering, selection, curve
+│   ├── modules/
+│   │   ├── color.tsx       # Color picker & gradient/mesh fill
+│   │   ├── gradient.tsx    # Gradient editor
+│   │   ├── texture.tsx     # Texture image fill & scale
+│   │   ├── opacity.tsx     # Layer opacity control
+│   │   ├── crop.tsx        # Image crop tool
+│   │   ├── rotate.tsx      # Layer rotation
+│   │   ├── curve.tsx       # Text curve/bend
+│   │   ├── relative-position.tsx # Position controls
+│   │   └── background-subpanel.tsx # Background layer panel
+│   └── ui/
+│       ├── jsx.ts          # Custom JSX runtime (h, Fragment)
+│       ├── SliderControl.tsx # Reusable slider component
+│       ├── Popup.tsx       # Modal popup component
+│       └── LayerList.tsx   # Layer list panel
+├── wasm/                   # WebAssembly modules (C/C++ source & compiled)
+├── cpp/                    # C/C++ source for WASM compilation
+├── font/                   # Custom font assets
+├── vite.config.ts          # Vite configuration
+├── tsconfig.json           # TypeScript configuration
+├── package.json            # Dependencies & scripts
+└── .github/
+    └── workflows/
+        └── deploy.yml      # GitHub Actions: build & deploy to Pages
 ```
+
+## Deployment
+
+Push to `master` branch triggers GitHub Actions workflow:
+1. Checkout → Install → `npm run build`
+2. Upload `dist/` as artifact
+3. Deploy to GitHub Pages
+
+Live at: **https://typorig.github.io**
 
 ## License
 

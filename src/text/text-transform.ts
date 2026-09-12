@@ -520,25 +520,40 @@ export class TextTransform {
       const scale =
         layer.textureScale !== undefined ? layer.textureScale : 1.0;
 
-      const offCanvas = document.createElement("canvas");
       const targetW = Math.max(1, Math.round(bounds.width * scale));
       const targetH = Math.max(1, Math.round(bounds.height * scale));
 
-      offCanvas.width = targetW;
-      offCanvas.height = targetH;
-      const offCtx = offCanvas.getContext("2d");
-
-      if (offCtx) {
-        offCtx.drawImage(img, 0, 0, targetW, targetH);
-        const repeatMode = scale < 1.0 ? "repeat" : "no-repeat";
-        textPattern = layer.ctx.createPattern(offCanvas, repeatMode);
-
-        if (textPattern && typeof DOMMatrix !== "undefined") {
-          const matrix = new DOMMatrix().translate(bounds.x, bounds.y);
-          textPattern.setTransform(matrix);
+      // Dùng cache: chỉ vẽ lại offscreen canvas khi ảnh/scale/kích thước thay đổi
+      if (
+        !layer._textureCacheCanvas ||
+        layer._textureCacheImg !== img ||
+        layer._textureCacheScale !== scale ||
+        layer._textureCacheW !== targetW ||
+        layer._textureCacheH !== targetH
+      ) {
+        if (!layer._textureCacheCanvas) {
+          layer._textureCacheCanvas = document.createElement("canvas");
         }
-        isPatternFill = true;
+        layer._textureCacheCanvas.width = targetW;
+        layer._textureCacheCanvas.height = targetH;
+        const offCtx = layer._textureCacheCanvas.getContext("2d");
+        if (offCtx) {
+          offCtx.drawImage(img, 0, 0, targetW, targetH);
+        }
+        layer._textureCacheImg = img;
+        layer._textureCacheScale = scale;
+        layer._textureCacheW = targetW;
+        layer._textureCacheH = targetH;
       }
+
+      const repeatMode = scale < 1.0 ? "repeat" : "no-repeat";
+      textPattern = layer.ctx.createPattern(layer._textureCacheCanvas, repeatMode);
+
+      if (textPattern && typeof DOMMatrix !== "undefined") {
+        const matrix = new DOMMatrix().translate(bounds.x, bounds.y);
+        textPattern.setTransform(matrix);
+      }
+      isPatternFill = true;
     } else if (
       typeof layer.fontColor === "object" &&
       layer.fontColor !== null

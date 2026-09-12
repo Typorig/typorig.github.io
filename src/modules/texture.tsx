@@ -61,6 +61,8 @@ export class TextureModule {
           const layer = this.getTargetLayer();
           if (layer) {
             layer.textureImage = img;
+            layer._textureCacheCanvas = null; // Invalidate cache
+            this.textTransform.redrawTextLayer(layer);
             this.layerManager.render();
             this.open(containerGroup); // Re-render panel
           }
@@ -120,6 +122,8 @@ export class TextureModule {
           const layer = this.getTargetLayer();
           if (layer) {
             layer.textureImage = null;
+            layer._textureCacheCanvas = null; // Invalidate cache
+            this.textTransform.redrawTextLayer(layer);
             this.layerManager.render();
             this.open(containerGroup);
           }
@@ -162,6 +166,7 @@ export class TextureModule {
         const layer = this.getTargetLayer();
         if (layer) {
           layer.textureScale = val / 100;
+          this.textTransform.redrawTextLayer(layer);
           this.layerManager.render();
         }
       },
