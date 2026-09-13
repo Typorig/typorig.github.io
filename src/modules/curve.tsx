@@ -66,6 +66,7 @@ export class CurveModule {
         const layer = this.getTargetLayer();
         if (layer) {
           layer.curveBend = val;
+          this.textTransform.redrawTextLayer(layer);
           this.layerManager.render();
           if (this.textTransform.selectedLayer === layer) {
             this.textTransform.drawSelectionOverlay(layer);

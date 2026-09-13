@@ -95,7 +95,7 @@ Push to `master` branch triggers GitHub Actions workflow:
 2. Upload `dist/` as artifact
 3. Deploy to GitHub Pages
 
-Live at: **https://typorig.github.io**
+Live at: **https://typorig.github.io/Typorig/**
 
 ## License
 
