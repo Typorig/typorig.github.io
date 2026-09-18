@@ -65,6 +65,15 @@ export class Layer {
   scaleY = 1;
   curveBend = 0;
 
+  // Item background properties
+  itemBgColor: string | { kind: string; [key: string]: any } | null = null;
+  itemBgImage: HTMLImageElement | null = null;
+  itemBgPaddingLeft = 0;
+  itemBgPaddingRight = 0;
+  itemBgPaddingTop = 0;
+  itemBgPaddingBottom = 0;
+  itemBgRadius = 0;
+
   // Image reference nếu là background / image layer
   image?: HTMLImageElement;
 

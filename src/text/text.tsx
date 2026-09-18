@@ -15,6 +15,7 @@ import { OpacityModule } from "../modules/opacity";
 import { ColorModule } from "../modules/color";
 import { CurveModule } from "../modules/curve";
 import { TextureModule } from "../modules/texture";
+import { ItemBackgroundModule } from "../modules/item-background";
 import { TextTransform } from "./text-transform";
 
 export interface TextStyleOptions {
@@ -156,6 +157,7 @@ export class TextUIController {
   private dataService: TextDataService;
   private curveModule: CurveModule | null = null;
   private textureModule: TextureModule | null = null;
+  private itemBackgroundModule: ItemBackgroundModule | null = null;
 
   constructor(
     layerManager: LayerManager,
@@ -168,6 +170,7 @@ export class TextUIController {
       this.textTransform = textTransform;
       this.curveModule = new CurveModule(layerManager, textTransform);
       this.textureModule = new TextureModule(layerManager, textTransform);
+      this.itemBackgroundModule = new ItemBackgroundModule(layerManager, textTransform);
     }
     this.initEventListeners();
     this.initEventBus();
@@ -177,6 +180,7 @@ export class TextUIController {
     this.textTransform = textTransform;
     this.curveModule = new CurveModule(this.layerManager, textTransform);
     this.textureModule = new TextureModule(this.layerManager, textTransform);
+    this.itemBackgroundModule = new ItemBackgroundModule(this.layerManager, textTransform);
   }
 
   private initEventListeners(): void {
@@ -265,6 +269,9 @@ export class TextUIController {
         break;
       case "curve":
         this.openCurvePanel();
+        break;
+      case "background":
+        this.openBackgroundPanel();
         break;
     }
   }
@@ -520,6 +527,15 @@ export class TextUIController {
     ) as HTMLElement | null;
     if (textPropsGroup && this.curveModule) {
       this.curveModule.open(textPropsGroup);
+    }
+  }
+
+  openBackgroundPanel(): void {
+    const textPropsGroup = document.querySelector(
+      '.sub-group[data-section="text-props"]'
+    ) as HTMLElement | null;
+    if (textPropsGroup && this.itemBackgroundModule) {
+      this.itemBackgroundModule.open(textPropsGroup);
     }
   }
 

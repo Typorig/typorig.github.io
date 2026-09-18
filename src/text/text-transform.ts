@@ -511,6 +511,84 @@ export class TextTransform {
     layer.ctx.font = `${style} ${weight} ${layer.fontSize}px ${layer.fontFamily}`;
 
     const bounds = this.getTextBounds(layer);
+
+    // === Draw item background (color or image) before text ===
+    if (bounds && (layer.itemBgColor || layer.itemBgImage)) {
+      const pL = layer.itemBgPaddingLeft || 0;
+      const pR = layer.itemBgPaddingRight || 0;
+      const pT = layer.itemBgPaddingTop || 0;
+      const pB = layer.itemBgPaddingBottom || 0;
+      const radius = layer.itemBgRadius || 0;
+
+      const bgX = bounds.x - pL;
+      const bgY = bounds.y - pT;
+      const bgW = bounds.width + pL + pR;
+      const bgH = bounds.height + pT + pB;
+
+      layer.ctx.save();
+      // Draw rounded rect path
+      if (radius > 0) {
+        const r = Math.min(radius, bgW / 2, bgH / 2);
+        layer.ctx.beginPath();
+        layer.ctx.moveTo(bgX + r, bgY);
+        layer.ctx.lineTo(bgX + bgW - r, bgY);
+        layer.ctx.arcTo(bgX + bgW, bgY, bgX + bgW, bgY + r, r);
+        layer.ctx.lineTo(bgX + bgW, bgY + bgH - r);
+        layer.ctx.arcTo(bgX + bgW, bgY + bgH, bgX + bgW - r, bgY + bgH, r);
+        layer.ctx.lineTo(bgX + r, bgY + bgH);
+        layer.ctx.arcTo(bgX, bgY + bgH, bgX, bgY + bgH - r, r);
+        layer.ctx.lineTo(bgX, bgY + r);
+        layer.ctx.arcTo(bgX, bgY, bgX + r, bgY, r);
+        layer.ctx.closePath();
+      } else {
+        layer.ctx.beginPath();
+        layer.ctx.rect(bgX, bgY, bgW, bgH);
+      }
+
+      if (layer.itemBgImage) {
+        // Fill with image pattern
+        const img = layer.itemBgImage;
+        const patternCanvas = document.createElement("canvas");
+        patternCanvas.width = Math.max(1, Math.round(bgW));
+        patternCanvas.height = Math.max(1, Math.round(bgH));
+        const pCtx = patternCanvas.getContext("2d");
+        if (pCtx) {
+          pCtx.drawImage(img, 0, 0, patternCanvas.width, patternCanvas.height);
+        }
+        const pattern = layer.ctx.createPattern(patternCanvas, "no-repeat");
+        if (pattern && typeof DOMMatrix !== "undefined") {
+          pattern.setTransform(new DOMMatrix().translate(bgX, bgY));
+        }
+        if (pattern) {
+          layer.ctx.fillStyle = pattern;
+        }
+      } else if (layer.itemBgColor) {
+        if (typeof layer.itemBgColor === "string") {
+          layer.ctx.fillStyle = layer.itemBgColor;
+        } else {
+          // Gradient fill (BackgroundFill object)
+          const fill = layer.itemBgColor as any;
+          const bgBounds = { x: bgX, y: bgY, width: bgW, height: bgH };
+
+          if (fill.kind === "solid") {
+            layer.ctx.fillStyle = fill.hex;
+          } else if (fill.kind === "preset" || (fill.kind === "custom" && fill.data?.type === "linear")) {
+            const grad = ColorModule.createGradientFillForCtx(layer.ctx, bgBounds, fill);
+            if (grad) {
+              layer.ctx.fillStyle = grad;
+            }
+          } else if (fill.kind === "custom" && fill.data?.meshPoints) {
+            const meshPattern = ColorModule.createMeshPatternForBounds(layer.ctx, bgBounds, fill);
+            if (meshPattern) {
+              layer.ctx.fillStyle = meshPattern;
+            }
+          }
+        }
+      }
+
+      layer.ctx.fill();
+      layer.ctx.restore();
+    }
     let isPatternFill = false;
     let textPattern: CanvasPattern | null = null;
 

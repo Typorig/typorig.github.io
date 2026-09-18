@@ -515,6 +515,13 @@ class ColorService {
 
   applyColor(hex: string): void {
     const { layerManager, onColorChange } = this.currentOptions;
+
+    // If onColorChange is provided without explicit targetLayer, delegate entirely to callback
+    if (onColorChange && !this.currentOptions.targetLayer) {
+      onColorChange(hex);
+      return;
+    }
+
     let targetLayer = this.currentOptions.targetLayer;
     if (!targetLayer && layerManager) {
       targetLayer = layerManager.getActiveLayer();
@@ -557,15 +564,22 @@ class ColorService {
 
   applyGradient(preset: PresetGradientItem): void {
     const { layerManager, onColorChange } = this.currentOptions;
-    let targetLayer = this.currentOptions.targetLayer;
-    if (!targetLayer && layerManager) {
-      targetLayer = layerManager.getActiveLayer();
-    }
 
     const angleDeg = preset.colors.length > 2 ? 135 : 90;
     const gradFill: BackgroundFill = preset.isCustom
       ? { kind: "custom", data: preset.data }
       : { kind: "preset", colors: [...preset.colors], angleDeg };
+
+    // If onColorChange is provided without explicit targetLayer, delegate entirely to callback
+    if (onColorChange && !this.currentOptions.targetLayer) {
+      onColorChange(gradFill);
+      return;
+    }
+
+    let targetLayer = this.currentOptions.targetLayer;
+    if (!targetLayer && layerManager) {
+      targetLayer = layerManager.getActiveLayer();
+    }
 
     if (targetLayer && targetLayer.type === "text" && targetLayer.id !== 0) {
       targetLayer.fontColor = gradFill;
