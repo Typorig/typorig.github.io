@@ -14,34 +14,61 @@
     <header id="topbar">
       <span class="topbar-brand">Typorig</span>
       <nav class="topbar-actions">
-        <button class="top-btn" data-action="undo" title="Undo"><svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor"
-              d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" />
-          </svg><span>Undo</span></button>
-        <button class="top-btn" data-action="redo" title="Redo"><svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor"
-              d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22l2.37.78c1.05-3.19 4.06-5.5 7.59-5.5 1.96 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z" />
-          </svg><span>Redo</span></button>
+        <button class="top-btn" data-action="undo" title="Undo">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 14L4 9l5-5" />
+            <path d="M4 9h10.5a6.5 6.5 0 0 1 6.5 6.5v0a6.5 6.5 0 0 1-6.5 6.5H11" />
+          </svg>
+          <span>Undo</span>
+        </button>
+        <button class="top-btn" data-action="redo" title="Redo">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 14l5-5-5-5" />
+            <path d="M20 9H9.5A6.5 6.5 0 0 0 3 15.5v0A6.5 6.5 0 0 0 9.5 22H13" />
+          </svg>
+          <span>Redo</span>
+        </button>
         <div class="topbar-divider"></div>
-        <button class="top-btn" data-action="ruler" title="Ruler"><svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor"
-              d="M3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2zm16 14H5V5h14v14zM7 7h2v10H7V7zm4 0h2v10h-2V7zm4 0h2v10h-2V7z" />
-          </svg><span>Ruler</span></button>
-        <button class="top-btn" data-action="layer" title="Layer"><svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg><span>Layer</span></button>
-        <button class="top-btn" data-action="add" title="Add"><svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-          </svg><span>Add</span></button>
-        <button class="top-btn" data-action="save" title="Save"><svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor"
-              d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
-          </svg><span>Save</span></button>
+        <button class="top-btn" data-action="ruler" title="Ruler">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2.5" />
+            <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
+          </svg>
+          <span>Ruler</span>
+        </button>
+        <button class="top-btn" data-action="layer" title="Layer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12,2 2,7 12,12 22,7" />
+            <path d="M2 12l10 5 10-5" />
+            <path d="M2 17l10 5 10-5" />
+          </svg>
+          <span>Layer</span>
+        </button>
+        <button class="top-btn" data-action="add" title="Add">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.5" />
+            <line x1="12" y1="8" x2="12" y2="16" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+          </svg>
+          <span>Add</span>
+        </button>
+        <button class="top-btn" data-action="save" title="Save">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          <span>Save</span>
+        </button>
         <div class="topbar-divider"></div>
-        <button class="top-btn" data-action="more" title="More"><svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor"
-              d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-          </svg><span>Other</span></button>
+        <button class="top-btn" data-action="more" title="More">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <circle cx="12" cy="5" r="1.8" />
+            <circle cx="12" cy="12" r="1.8" />
+            <circle cx="12" cy="19" r="1.8" />
+          </svg>
+          <span>Other</span>
+        </button>
       </nav>
     </header>
 
@@ -51,37 +78,46 @@
       <aside id="sidebar">
         <div class="sidebar-group">
           <div class="sidebar-section" data-section="elements">
-            <svg viewBox="0 0 24 24" width="22" height="22">
-              <path fill="currentColor"
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z" />
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="4" />
+              <rect x="13" y="3" width="8" height="8" rx="1.5" />
+              <polygon points="12,14 17,21 7,21" />
             </svg>
             <span>Elements</span>
           </div>
           <div class="sidebar-section" data-section="text">
-            <svg viewBox="0 0 24 24" width="22" height="22">
-              <path fill="currentColor" d="M5 4v3h5.5v12h3V7H19V4H5z" />
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7V4h16v3" />
+              <path d="M12 4v16" />
+              <path d="M8 20h8" />
             </svg>
             <span>Text</span>
           </div>
           <div class="sidebar-section active" data-section="background">
-            <svg viewBox="0 0 24 24" width="22" height="22">
-              <path fill="currentColor"
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z" />
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Backdrop layer behind canvas -->
+              <rect x="2" y="2" width="15" height="15" rx="3" stroke-dasharray="2.5 2" opacity="0.6" />
+              <!-- Foreground canvas surface -->
+              <rect x="7" y="7" width="15" height="15" rx="3" fill="currentColor" fill-opacity="0.15" />
+              <!-- Base horizon anchor -->
+              <path d="M7 17h15" opacity="0.4" />
+              <path d="M12 7v15" opacity="0.4" stroke-dasharray="2 2" />
             </svg>
             <span>Background</span>
           </div>
           <div class="sidebar-section" data-section="effects">
-            <svg viewBox="0 0 24 24" width="22" height="22">
-              <path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2l2.4 5 5.6.8-4 4 1 5.7-5-2.7-5 2.7 1-5.7-4-4 5.6-.8L12 2z" />
+              <path d="M19 19l2 3M21 19l-2 3M3 5l2-2M5 5L3 3" stroke-width="1.5" />
             </svg>
             <span>Effects</span>
           </div>
         </div>
         <div class="sidebar-divider"></div>
         <div class="sidebar-section" data-section="setting">
-          <svg viewBox="0 0 24 24" width="22" height="22">
-            <path fill="currentColor"
-              d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
           <span>Setting</span>
         </div>
@@ -92,34 +128,46 @@
         <!-- Elements items -->
         <div class="sub-group hidden" data-section="elements">
           <button class="sub-item" data-sub="el-emojis">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9 10h.01M15 10h.01" stroke-width="2.5" />
+              <path d="M8 14.5c1 1.5 2.5 2.5 4 2.5s3-1 4-2.5" />
             </svg>
             <span>Emojis</span>
           </button>
           <button class="sub-item" data-sub="el-import">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2.5" />
+              <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" />
+              <path d="M21 15l-5-5L4 21" />
+              <path d="M12 7h6M15 4v6" stroke-width="2" />
             </svg>
             <span>Import</span>
           </button>
           <button class="sub-item" data-sub="el-shapes">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="8" r="4.5" />
+              <rect x="11.5" y="10.5" width="8.5" height="8.5" rx="1.5" />
             </svg>
             <span>Shapes</span>
           </button>
           <button class="sub-item" data-sub="el-bezier">
-            <svg viewBox="0 0 16 16" width="16" height="16">
-              <path fill="none" stroke="currentColor" stroke-width="1"
-                d="M1.5 12.5h2v2h-2z M12.5 1.5h2v2h-2z M12.5 2.5C7 2.5 2.5 7 2.5 12.5" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2.5" y="15.5" width="5" height="5" rx="1" fill="currentColor" fill-opacity="0.2" />
+              <rect x="16.5" y="3.5" width="5" height="5" rx="1" fill="currentColor" fill-opacity="0.2" />
+              <path d="M5 15.5C5 7 17 17 19 8.5" />
+              <line x1="5" y1="15.5" x2="9" y2="10" stroke-width="1.2" stroke-dasharray="2 2" />
+              <line x1="19" y1="8.5" x2="15" y2="14" stroke-width="1.2" stroke-dasharray="2 2" />
+              <circle cx="9" cy="10" r="1.5" fill="currentColor" stroke="none" />
+              <circle cx="15" cy="14" r="1.5" fill="currentColor" stroke="none" />
             </svg>
             <span>Bezier</span>
           </button>
           <button class="sub-item" data-sub="el-arrow">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="12" x2="19" y2="12" stroke-width="2" />
+              <polyline points="13 6 19 12 13 18" stroke-width="2" />
+              <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none" />
             </svg>
             <span>Arrow</span>
           </button>
@@ -239,14 +287,18 @@
           </button>
           <button class="sub-item" data-prop="spacing">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8.5 13L12 4.5 15.5 13M9.6 10.5h4.8" />
+              <line x1="6" y1="4" x2="6" y2="13" stroke-width="2" />
+              <line x1="12" y1="4" x2="12" y2="13" stroke-width="2" />
+              <line x1="18" y1="4" x2="18" y2="13" stroke-width="2" />
               <path d="M2 18.5h20M2 18.5l3-2.5M2 18.5l3 2.5M22 18.5l-3-2.5M22 18.5l-3 2.5" />
             </svg>
             <span>Spacing</span>
           </button>
           <button class="sub-item" data-prop="line-spacing">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 6h10M11 12h10M11 18h10" stroke-width="2" />
+              <line x1="11" y1="6" x2="20" y2="6" stroke-width="2" />
+              <line x1="11" y1="12" x2="20" y2="12" stroke-width="2" />
+              <line x1="11" y1="18" x2="20" y2="18" stroke-width="2" />
               <path d="M5 4v16M5 4l-2.5 2.5M5 4l2.5 2.5M5 20l-2.5-2.5M5 20l2.5-2.5" />
             </svg>
             <span>Line Spacing</span>
@@ -329,42 +381,56 @@
         <!-- Background items -->
         <div class="sub-group" data-section="background">
           <button class="sub-item" data-sub="bg-color">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.5a9.5 9.5 0 0 0-9.5 9.5c0 4.5 3.5 8 8 8 .8 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.4-.5-.9-.5-1.4 0-1.1.9-2 2-2h1.9c3.9 0 6.5-2.6 6.5-6.5 0-5.2-4.3-9-9.5-9z" />
+              <circle cx="7.5" cy="11.5" r="1.3" fill="currentColor" stroke="none" />
+              <circle cx="10" cy="7.5" r="1.3" fill="currentColor" stroke="none" />
+              <circle cx="14" cy="7.5" r="1.3" fill="currentColor" stroke="none" />
+              <circle cx="16.5" cy="11.5" r="1.3" fill="currentColor" stroke="none" />
             </svg>
             <span>Color</span>
           </button>
           <button class="sub-item" data-sub="bg-transparent">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <rect x="3" y="3" width="4.5" height="4.5" />
+              <rect x="12" y="3" width="4.5" height="4.5" />
+              <rect x="7.5" y="7.5" width="4.5" height="4.5" />
+              <rect x="16.5" y="7.5" width="4.5" height="4.5" />
+              <rect x="3" y="12" width="4.5" height="4.5" />
+              <rect x="12" y="12" width="4.5" height="4.5" />
+              <rect x="7.5" y="16.5" width="4.5" height="4.5" />
+              <rect x="16.5" y="16.5" width="4.5" height="4.5" />
             </svg>
             <span>Transparent</span>
           </button>
           <button class="sub-item" data-sub="bg-size">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6 18H4V8h10v12zm6 0h-4V8h4v12z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2.5" />
+              <path d="M9 3v18M3 9h18" stroke-dasharray="2 2" opacity="0.6" />
+              <path d="M8 12h8M12 8v8" stroke-width="2" />
             </svg>
             <span>Size</span>
           </button>
           <button class="sub-item" data-sub="bg-crop">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M17 15h2V7a2 2 0 0 0-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10a2 2 0 0 0 2 2h10v4h2v-4h4v-2H7z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2v14a2 2 0 0 0 2 2h14" />
+              <path d="M18 22V8a2 2 0 0 0-2-2H2" />
             </svg>
             <span>Crop</span>
           </button>
           <button class="sub-item" data-sub="bg-from-upload">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 16.5v2A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5v-2" />
+              <polyline points="7 9 12 4 17 9" />
+              <line x1="12" y1="4" x2="12" y2="16" />
             </svg>
             <span>From Upload</span>
           </button>
           <button class="sub-item" data-sub="bg-from-camera">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z" />
-              <path fill="currentColor"
-                d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
             </svg>
             <span>From Camera</span>
           </button>
@@ -372,55 +438,69 @@
         <!-- Effects items -->
         <div class="sub-group hidden" data-section="effects">
           <button class="sub-item" data-sub="fx-rotate">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M15.55 5.55L11 1v3.07C7.06 4.56 4 7.92 4 12s3.06 7.44 7 7.93v-2.02c-2.84-.48-5-2.94-5-5.91s2.16-5.43 5-5.91V1l4.55 4.55zM19.93 11a7.9 7.9 0 0 0-1.62-3.89l-1.42 1.42c.54.75.88 1.6 1.02 2.47h2.02zM13 17.93v2.02a7.94 7.94 0 0 0 3.89-1.62l-1.42-1.42c-.75.54-1.59.89-2.47 1.02zm3.89-2.42l1.42 1.41A7.9 7.9 0 0 0 19.93 13h-2.02a5.94 5.94 0 0 1-1.02 2.51z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.7 1 6.3 2.7L21 8" />
+              <path d="M21 3v5h-5" />
             </svg>
             <span>Rotate</span>
           </button>
           <button class="sub-item" data-sub="fx-vignette">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <circle cx="12" cy="12" r="6" stroke-dasharray="2.5 2.5" />
+              <circle cx="12" cy="12" r="2.5" fill="currentColor" />
             </svg>
             <span>Vignette</span>
           </button>
           <button class="sub-item" data-sub="fx-noise">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <circle cx="7" cy="7" r="1" fill="currentColor" stroke="none" />
+              <circle cx="13" cy="6" r="1.2" fill="currentColor" stroke="none" />
+              <circle cx="17" cy="9" r="0.8" fill="currentColor" stroke="none" />
+              <circle cx="9" cy="12" r="1.3" fill="currentColor" stroke="none" />
+              <circle cx="15" cy="13" r="1" fill="currentColor" stroke="none" />
+              <circle cx="6" cy="16" r="0.9" fill="currentColor" stroke="none" />
+              <circle cx="12" cy="17" r="1.4" fill="currentColor" stroke="none" />
+              <circle cx="18" cy="16.5" r="1" fill="currentColor" stroke="none" />
             </svg>
             <span>Noise</span>
           </button>
           <button class="sub-item" data-sub="fx-stripes">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M3 13h18v-2H3v2z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <line x1="3" y1="7" x2="21" y2="7" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="17" x2="21" y2="17" />
             </svg>
             <span>Stripes</span>
           </button>
           <button class="sub-item" data-sub="fx-brightness">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M20 15.31L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
             </svg>
             <span>Brightness</span>
           </button>
           <button class="sub-item" data-sub="fx-contrast">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" />
             </svg>
             <span>Contrast</span>
           </button>
           <button class="sub-item" data-sub="fx-hue">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3-8c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 12L18.36 5.64M12 12l6.36 6.36M12 12H3" stroke-width="1.5" />
+              <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none" />
             </svg>
             <span>Hue</span>
           </button>
           <button class="sub-item" data-sub="fx-saturation">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor"
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-3.5l6-4.5-6-4.5v9z" />
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.5s7 8.5 7 13.5a7 7 0 1 1-14 0c0-5 7-13.5 7-13.5z" />
+              <path d="M12 6.5s4 4.5 4 8a4 4 0 0 1-8 0c0-3.5 4-8 4-8z" fill="currentColor" fill-opacity="0.25" stroke="none" />
             </svg>
             <span>Saturation</span>
           </button>
