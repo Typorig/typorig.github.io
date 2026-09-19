@@ -275,7 +275,7 @@ if (canvas) {
     }
   });
 
-  // Khởi tạo canvas mặc định (tỉ lệ 2:1, 1200x600, Neon gradient: #00f260 → #0575e6) như app.js cũ
+  // Initialize default canvas (2:1 ratio, 1200x600, Neon gradient: #00f260 -> #0575e6)
   function initDefaultCanvas(): void {
     const W = 1200;
     const H = 600;
@@ -286,7 +286,7 @@ if (canvas) {
 
     layerManager.resizeAllLayers(W, H);
 
-    // Neon gradient mặc định: #00f260 → #0575e6 trên Background layer
+    // Default neon gradient: #00f260 -> #0575e6 on Background layer
     const bgLayer = layerManager.getBackgroundLayer();
     const bgGrad = bgLayer.ctx.createLinearGradient(0, 0, W, H);
     bgGrad.addColorStop(0, "#00f260");
@@ -306,7 +306,7 @@ if (canvas) {
     };
     bgImg.src = bgLayer.canvas.toDataURL();
 
-    // Mở Layer Sidebar và kích hoạt nút Layer mặc định như code cũ
+    // Open Layer Sidebar and activate default Layer button
     const layerBtn = document.querySelector('.top-btn[data-action="layer"]');
     const layerSidebar = document.getElementById("layer-sidebar");
     const body = document.getElementById("body");
@@ -314,7 +314,7 @@ if (canvas) {
     if (layerSidebar) layerSidebar.classList.remove("hidden");
     if (body) body.classList.add("layer-open");
 
-    // Tạo text layer ban đầu "Sample Text"
+    // Create initial text layer "Sample Text"
     layerManager.createTextLayer("Sample Text", W / 2, H / 2, 64, "Arial", "#ffffff");
     const sampleLayer = layerManager.getActiveLayer();
     if (sampleLayer && sampleLayer.type === "text") {

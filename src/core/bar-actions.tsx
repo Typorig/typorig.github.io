@@ -35,6 +35,7 @@ export interface SerializedLayerData {
   underline?: boolean;
   fontColor?: string;
   textAlign?: CanvasTextAlign;
+  textJustify?: boolean;
   paddingLeft?: number;
   paddingRight?: number;
   x?: number;
@@ -129,6 +130,7 @@ export class BarActions {
         underline: layer.underline,
         fontColor: layer.fontColor,
         textAlign: layer.textAlign,
+        textJustify: layer.textJustify,
         paddingLeft: layer.paddingLeft,
         paddingRight: layer.paddingRight,
         x: layer.x,
@@ -243,6 +245,7 @@ export class BarActions {
         if (sLayer.underline !== undefined) layer.underline = sLayer.underline;
         if (sLayer.fontColor !== undefined) layer.fontColor = sLayer.fontColor;
         if (sLayer.textAlign !== undefined) layer.textAlign = sLayer.textAlign;
+        if (sLayer.textJustify !== undefined) layer.textJustify = sLayer.textJustify;
         if (sLayer.paddingLeft !== undefined) layer.paddingLeft = sLayer.paddingLeft;
         if (sLayer.paddingRight !== undefined) layer.paddingRight = sLayer.paddingRight;
         if (sLayer.x !== undefined) layer.x = sLayer.x;

@@ -1,7 +1,6 @@
 /**
  * Gradient Module - TypeScript + TSX Real DOM
- * Thay thế hoàn toàn js/modules/gradient.js
- * Quản lý vẽ và điều chỉnh Custom Linear & Radial Mesh Gradients
+ * Custom Linear & Radial Mesh Gradients management
  */
 
 import { h } from "../ui/jsx";

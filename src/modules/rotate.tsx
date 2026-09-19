@@ -1,7 +1,6 @@
 /**
- * Rotate Module - TypeScript thuần + TSX
- * Quản lý xoay (rotation) góc từ -180° đến 180° cho Active Layer
- * Tương tác với active layer qua eventBus hoặc LayerManager truyền vào
+ * Rotate Module - TypeScript + TSX
+ * Manages rotation (-180° to 180°) for active layer
  */
 
 import { h } from "../ui/jsx";
@@ -20,9 +19,9 @@ let savedInnerHTML: string | null = null;
 
 export const RotateModule = {
   /**
-   * Mở Rotate sub-panel trong một container
-   * @param containerGroup - Thẻ chứa sub-group (vd: .sub-group[data-section="text-props"])
-   * @param options - Các tùy chọn LayerManager, Layer hoặc callback
+   * Opens Rotate sub-panel inside a container
+   * @param containerGroup - Container element
+   * @param options - LayerManager, Layer or callback options
    */
   open(containerGroup: HTMLElement | null, options: RotateModuleOptions = {}): void {
     if (!containerGroup) return;

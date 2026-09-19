@@ -46,6 +46,7 @@ export class Layer {
   underline = false;
   fontColor: string | any = "#000000";
   textAlign: CanvasTextAlign = "left";
+  textJustify = false;
   paddingLeft = 0;
   paddingRight = 0;
   textureImage: HTMLImageElement | null = null;

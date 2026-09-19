@@ -1,7 +1,6 @@
 /**
- * Color Module - TypeScript thuần + TSX
- * Quản lý chọn màu đơn sắc (Monochrome) và Gradient cho Background & Text Layer
- * Không phụ thuộc window.*, giao tiếp qua eventBus & LayerManager
+ * Color Module - TypeScript + TSX
+ * Manages solid (Monochrome) and Gradient colors for Background & Text Layers
  */
 
 import { h } from "../ui/jsx";

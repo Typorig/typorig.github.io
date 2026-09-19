@@ -1,7 +1,6 @@
 /**
- * Opacity Module - TypeScript thuần + TSX
- * Quản lý độ trong suốt (opacity) cho mọi Layer (Text, Elements, ...)
- * Tương tác với active layer qua eventBus hoặc LayerManager truyền vào
+ * Opacity Module - TypeScript + TSX
+ * Manages opacity for layers
  */
 
 import { h } from "../ui/jsx";
@@ -20,9 +19,9 @@ let savedInnerHTML: string | null = null;
 
 export const OpacityModule = {
   /**
-   * Mở Opacity sub-panel trong một container
-   * @param containerGroup - Thẻ chứa sub-group (vd: .sub-group[data-section="text-props"])
-   * @param options - Các tùy chọn LayerManager, Layer hoặc callback
+   * Opens Opacity sub-panel inside a container
+   * @param containerGroup - Container element
+   * @param options - LayerManager, Layer or callback options
    */
   open(containerGroup: HTMLElement | null, options: OpacityModuleOptions = {}): void {
     if (!containerGroup) return;

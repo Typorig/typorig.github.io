@@ -1,7 +1,6 @@
 /**
- * Relative Position Module - TypeScript thuần + TSX
- * Quản lý căn chỉnh vị trí đối tượng (Text, Elements, ...) theo canvas
- * Tương tác qua eventBus và LayerManager trực tiếp
+ * Relative Position Module - TypeScript + TSX
+ * Aligns elements relative to canvas
  */
 
 import { h } from "../ui/jsx";
@@ -28,9 +27,9 @@ let savedInnerHTML: string | null = null;
 
 export const RelativePositionModule = {
   /**
-   * Mở Relative Position sub-panel trong một container (sub-sidebar group)
-   * @param containerGroup - Thẻ chứa sub-group (vd: .sub-group[data-section="text-props"])
-   * @param options - Các tùy chọn bổ sung
+   * Opens Relative Position sub-panel inside a container
+   * @param containerGroup - Container element
+   * @param options - Additional options
    */
   open(
     containerGroup: HTMLElement | null,
@@ -241,7 +240,7 @@ export const RelativePositionModule = {
     const H = canvas.height;
 
     if (targetLayer.type === "text") {
-      // Ước tính hoặc tính toán text width theo font hiện thời
+      // Calculate text width with current font
       const ctx = targetLayer.ctx;
       ctx.font = `${targetLayer.fontStyle} ${targetLayer.fontWeight} ${targetLayer.fontSize}px ${targetLayer.fontFamily}`;
       const lines = String(targetLayer.text || "").split("\n");

@@ -1,6 +1,6 @@
 /**
  * Texture Module - TSX Real DOM
- * Quản lý họa tiết texture bề mặt và scale cho Layer
+ * Manages surface texture pattern and scale for Layer
  */
 
 import { h } from "../ui/jsx";

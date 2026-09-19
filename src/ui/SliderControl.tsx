@@ -1,6 +1,6 @@
 /**
- * Slider Control Component - Viết bằng TSX sinh Real DOM thuần
- * Không dùng innerHTML, không cài thư viện ngoài
+ * Slider Control Component - Real DOM TSX
+ * Zero-dependency slider with numeric input and +/- step buttons
  */
 
 import { h } from "./jsx";

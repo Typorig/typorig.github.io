@@ -1,6 +1,6 @@
 /**
  * Popup and Dropdown UI Components - TSX Real DOM
- * Thay thế js/core/popup.js mà không phụ thuộc window.*
+ * Modal and Dropdown Popup management
  */
 
 import { h } from "./jsx";
@@ -29,7 +29,7 @@ export interface DropdownOptions {
 }
 
 /**
- * Hiển thị Modal Overlay Popup
+ * Displays modal overlay popup
  */
 export function showPopup(opts?: PopupOptions): PopupInstance {
   const {
@@ -124,7 +124,7 @@ export function showPopup(opts?: PopupOptions): PopupInstance {
 }
 
 /**
- * Hiển thị Dropdown Menu tương tác với 1 trigger element
+ * Displays dropdown menu relative to trigger element
  */
 export function showDropdown(
   triggerEl: HTMLElement,
@@ -132,7 +132,7 @@ export function showDropdown(
 ): void {
   const { items = [], onItemClick } = opts || {};
 
-  // Đóng bất kỳ dropdown nào đang tồn tại
+  // Close existing dropdown if any
   document.querySelectorAll(".dropdown-menu").forEach((d) => d.remove());
 
   const menu = (<div class="dropdown-menu"></div>) as HTMLElement;

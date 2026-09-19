@@ -16,6 +16,7 @@ import { ColorModule } from "../modules/color";
 import { CurveModule } from "../modules/curve";
 import { TextureModule } from "../modules/texture";
 import { ItemBackgroundModule } from "../modules/item-background";
+import { TextAlignModule } from "./text-align";
 import { TextTransform } from "./text-transform";
 
 export interface TextStyleOptions {
@@ -48,7 +49,7 @@ export class TextDataService {
   }
 
   /**
-   * Tạo một text layer mới trên canvas và mở trình sửa chữ
+   * Create new text layer and activate editor
    */
   createNewTextLayer(
     text = "Sample Text",
@@ -86,7 +87,7 @@ export class TextDataService {
   }
 
   /**
-   * Cập nhật nội dung text của layer
+   * Update layer text content
    */
   updateTextContent(textLayer: Layer, newText: string): void {
     if (!textLayer || textLayer.type !== "text") return;
@@ -104,7 +105,7 @@ export class TextDataService {
   }
 
   /**
-   * Cập nhật các thuộc tính style (size, font, color, decoration) của text layer
+   * Update style properties (size, font, color, decoration) of text layer
    */
   updateTextStyle(textLayer: Layer, options: TextStyleOptions = {}): void {
     if (!textLayer || textLayer.type !== "text") return;
@@ -129,7 +130,7 @@ export class TextDataService {
   }
 
   /**
-   * Di chuyển tọa độ text layer
+   * Move text layer coordinates
    */
   moveTextLayer(textLayer: Layer, newX: number, newY: number): void {
     if (!textLayer || textLayer.type !== "text") return;
@@ -158,6 +159,7 @@ export class TextUIController {
   private curveModule: CurveModule | null = null;
   private textureModule: TextureModule | null = null;
   private itemBackgroundModule: ItemBackgroundModule | null = null;
+  private textAlignModule: TextAlignModule | null = null;
 
   constructor(
     layerManager: LayerManager,
@@ -171,6 +173,7 @@ export class TextUIController {
       this.curveModule = new CurveModule(layerManager, textTransform);
       this.textureModule = new TextureModule(layerManager, textTransform);
       this.itemBackgroundModule = new ItemBackgroundModule(layerManager, textTransform);
+      this.textAlignModule = new TextAlignModule(layerManager, textTransform);
     }
     this.initEventListeners();
     this.initEventBus();
@@ -181,6 +184,7 @@ export class TextUIController {
     this.curveModule = new CurveModule(this.layerManager, textTransform);
     this.textureModule = new TextureModule(this.layerManager, textTransform);
     this.itemBackgroundModule = new ItemBackgroundModule(this.layerManager, textTransform);
+    this.textAlignModule = new TextAlignModule(this.layerManager, textTransform);
   }
 
   private initEventListeners(): void {
@@ -273,6 +277,9 @@ export class TextUIController {
       case "background":
         this.openBackgroundPanel();
         break;
+      case "align":
+        this.openAlignPanel();
+        break;
     }
   }
 
@@ -351,11 +358,9 @@ export class TextUIController {
           }
         }}
       >
-        <svg viewBox="0 0 24 24" width="18" height="18">
-          <path
-            fill="currentColor"
-            d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
-          />
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5" />
+          <path d="M11 18l-6-6 6-6" />
         </svg>
         <span>Back</span>
       </button>
@@ -424,11 +429,9 @@ export class TextUIController {
           }
         }}
       >
-        <svg viewBox="0 0 24 24" width="18" height="18">
-          <path
-            fill="currentColor"
-            d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
-          />
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5" />
+          <path d="M11 18l-6-6 6-6" />
         </svg>
         <span>Back</span>
       </button>
@@ -539,6 +542,15 @@ export class TextUIController {
     }
   }
 
+  openAlignPanel(): void {
+    const textPropsGroup = document.querySelector(
+      '.sub-group[data-section="text-props"]'
+    ) as HTMLElement | null;
+    if (textPropsGroup && this.textAlignModule) {
+      this.textAlignModule.open(textPropsGroup);
+    }
+  }
+
   openStylePanel(): void {
     const textPropsGroup = document.querySelector(
       '.sub-group[data-section="text-props"]'
@@ -581,11 +593,9 @@ export class TextUIController {
           }
         }}
       >
-        <svg viewBox="0 0 24 24" width="18" height="18">
-          <path
-            fill="currentColor"
-            d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
-          />
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5" />
+          <path d="M11 18l-6-6 6-6" />
         </svg>
         <span>Back</span>
       </button>
@@ -780,7 +790,7 @@ export class TextUIController {
 }
 
 /**
- * Lớp tổng hợp TextHandler tương thích API cũ
+ * Legacy TextHandler compatibility wrapper
  */
 export class TextHandler {
   dataService: TextDataService;

@@ -1,6 +1,5 @@
 /**
- * Event Bus siêu nhẹ phục vụ kiến trúc Loose-Coupling
- * Thay thế việc các module truy cập trực tiếp biến toàn cục window
+ * Lightweight Event Bus for loose-coupling architecture
  */
 
 type Handler<T = any> = (data: T) => void;

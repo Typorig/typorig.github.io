@@ -1,7 +1,6 @@
 /**
- * Crop Module - TypeScript thuần + TSX
- * Quản lý cắt ảnh (Crop), tỉ lệ (Aspect Ratio), góc bo (Rounded/Circle)
- * Dùng showPopup từ src/ui/Popup.tsx, không phụ thuộc window.*
+ * Crop Module - TypeScript + TSX
+ * Handles image cropping, aspect ratios, and rounded corners
  */
 
 import { h } from "../ui/jsx";
@@ -34,7 +33,7 @@ export class CropService {
   open(options: CropModuleOptions = {}): void {
     const { layerManager } = options;
 
-    // Lấy source image từ options hoặc từ background layer
+    // Get source image from options or background layer
     let srcImg = options.sourceImage;
     if (!srcImg && layerManager) {
       const bgLayer = layerManager.getBackgroundLayer();

@@ -1,6 +1,6 @@
 /**
- * Text Transform Module - TypeScript chuẩn
- * Xử lý hit-testing, drag di chuyển, resize cỡ chữ, xoay và chỉnh sửa chữ in-place trên canvas
+ * Text Transform Module - TypeScript
+ * Handles hit-testing, dragging, font resizing, rotating, and in-place canvas editing
  */
 
 import { Layer, LayerManager } from "../core/layer";
@@ -23,6 +23,28 @@ export interface TextEditingOptions {
   deleteBackward?: boolean;
   deleteForward?: boolean;
   insertText?: string;
+}
+
+/**
+ * Checks if text contains RTL characters (Arabic, Hebrew, etc.)
+ */
+export function isRTL(text: string): boolean {
+  return /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/.test(text);
+}
+
+/**
+ * Resolves CanvasTextAlign ("left" | "right" | "center" | "start" | "end")
+ * to absolute alignment ("left" | "right" | "center") based on text direction (LTR / RTL)
+ */
+export function resolveEffectiveAlign(
+  align: CanvasTextAlign,
+  text: string
+): "left" | "right" | "center" {
+  if (align === "center") return "center";
+  const rtl = isRTL(text);
+  if (align === "start") return rtl ? "right" : "left";
+  if (align === "end") return rtl ? "left" : "right";
+  return align === "right" ? "right" : "left";
 }
 
 export class TextTransform {
@@ -65,12 +87,12 @@ export class TextTransform {
     this.initEventListeners();
     this.initEventBus();
 
-    // Đồng bộ vào window để tương thích ngược nếu các script cũ cần truy cập
+    // Expose to window for backwards compatibility if needed
     (window as unknown as { textTransform?: TextTransform }).textTransform = this;
   }
 
   /**
-   * Khởi tạo event listeners cho canvas và bàn phím
+   * Initialize canvas and keyboard event listeners
    */
   initEventListeners(): void {
     this.canvas.addEventListener("mousedown", this.boundMouseDown);
@@ -82,7 +104,7 @@ export class TextTransform {
   }
 
   /**
-   * Đăng ký nhận sự kiện qua eventBus
+   * Register event listeners via eventBus
    */
   private initEventBus(): void {
     const unsubSelect = eventBus.on<Layer>("layer:selected", (layer) => {
@@ -118,7 +140,7 @@ export class TextTransform {
   }
 
   /**
-   * Lấy vị trí chuột trên canvas đã bù trừ scale
+   * Get scale-adjusted mouse position on canvas
    */
   getMousePos(e: MouseEvent): { x: number; y: number } {
     const rect = this.canvas.getBoundingClientRect();
@@ -132,7 +154,7 @@ export class TextTransform {
   }
 
   /**
-   * Tính toán bounding box của text layer (hỗ trợ curved text, padding, align)
+   * Calculate text layer bounding box (supports curved text, padding, alignment)
    */
   getTextBounds(layer: Layer | null): TextBounds | null {
     if (
@@ -154,11 +176,11 @@ export class TextTransform {
     const width = Math.max(10, ...widths);
     const lineHeight = Math.round(layer.fontSize * 1.2);
 
-    // Khoảng trống phía dưới baseline cho đuôi chữ (g, p, q, y) và gạch chân
+    // Space below baseline for descenders (g, p, q, y) and underline
     const extraBottom = Math.round(layer.fontSize * 0.35);
 
-    // Curve sagitta: khoảng trống cho text cong
-    // curveHorzPad: phần đầu chữ (fontSize cao) xoay góc halfAngle sẽ nhô ngang
+    // Curve sagitta: space for curved text arc
+    // curveHorzPad: extra horizontal space for rotated curved glyphs
     let curveSagitta = 0;
     let curveHorzPad = 0;
     if (layer.curveBend && layer.curveBend !== 0) {
@@ -183,10 +205,11 @@ export class TextTransform {
     const pLeft = layer.paddingLeft || 0;
     const pRight = layer.paddingRight || 0;
 
+    const effAlign = resolveEffectiveAlign(layer.textAlign, layer.text || "");
     let x0 = layer.x;
-    if (layer.textAlign === "center") {
+    if (effAlign === "center") {
       x0 = layer.x - width / 2;
-    } else if (layer.textAlign === "right") {
+    } else if (effAlign === "right") {
       x0 = layer.x - width;
     }
 
@@ -195,7 +218,7 @@ export class TextTransform {
     const bottomBaselineY =
       layer.y + Math.max(0, lines.length - 1) * lineHeight + extraBottom;
 
-    // Dịch top lên nếu curve hướng lên (bend > 0)
+    // Shift top if curve bends upwards (bend > 0)
     const topShift = layer.curveBend && layer.curveBend > 0 ? curveSagitta : 0;
 
     return {
@@ -212,7 +235,7 @@ export class TextTransform {
   }
 
   /**
-   * Kiểm tra tọa độ chuột có nằm trong vùng bounding box không
+   * Check if mouse coordinate is inside bounding box
    */
   isPointInText(x: number, y: number, bounds: TextBounds | null): boolean {
     if (!bounds) return false;
@@ -225,7 +248,7 @@ export class TextTransform {
   }
 
   /**
-   * Kiểm tra tọa độ chuột có nằm trong nút kéo resize handle không
+   * Check if mouse coordinate is inside resize handle
    */
   isPointInResizeHandle(
     x: number,
@@ -246,7 +269,7 @@ export class TextTransform {
   }
 
   /**
-   * Tìm text layer tại vị trí chuột (duyệt zIndex từ trên xuống)
+   * Find text layer at mouse position (traversing top-down zIndex)
    */
   findTextLayerAt(
     x: number,
@@ -267,7 +290,7 @@ export class TextTransform {
   }
 
   /**
-   * Xử lý sự kiện mousedown
+   * Handle mousedown event
    */
   handleMouseDown(e: MouseEvent): void {
     if (this.isEditing) return;
@@ -321,7 +344,7 @@ export class TextTransform {
   }
 
   /**
-   * Xử lý sự kiện mousemove
+   * Handle mousemove event
    */
   handleMouseMove(e: MouseEvent): void {
     if (this.isEditing) return;
@@ -392,7 +415,7 @@ export class TextTransform {
   }
 
   /**
-   * Xử lý sự kiện mouseup
+   * Handle mouseup event
    */
   handleMouseUp(e: MouseEvent): void {
     if (this.isEditing) return;
@@ -422,14 +445,14 @@ export class TextTransform {
   }
 
   /**
-   * Xử lý sự kiện mouseleave
+   * Handle mouseleave event
    */
   handleMouseLeave(e: MouseEvent): void {
     this.handleMouseUp(e);
   }
 
   /**
-   * Xử lý phím tắt khi đang chọn text layer
+   * Handle keyboard shortcuts for selected text layer
    */
   handleKeyDown(e: KeyboardEvent): void {
     if (this.isEditing) return;
@@ -482,7 +505,7 @@ export class TextTransform {
   }
 
   /**
-   * Nhấp đúp chuột để kích hoạt chế độ chỉnh sửa chữ
+   * Double click to enter text editing mode
    */
   handleDoubleClick(e: MouseEvent): void {
     const pos = this.getMousePos(e);
@@ -499,7 +522,7 @@ export class TextTransform {
   }
 
   /**
-   * Vẽ lại toàn bộ nội dung của text layer lên canvas riêng của layer đó
+   * Redraw full text layer content onto layer canvas
    */
   redrawTextLayer(layer: Layer | null): void {
     if (!layer || layer.type !== "text") return;
@@ -592,7 +615,7 @@ export class TextTransform {
     let isPatternFill = false;
     let textPattern: CanvasPattern | null = null;
 
-    // Ưu tiên Texture hơn Color
+    // Texture takes precedence over Color
     if (layer.textureImage && bounds) {
       const img = layer.textureImage;
       const scale =
@@ -601,7 +624,7 @@ export class TextTransform {
       const targetW = Math.max(1, Math.round(bounds.width * scale));
       const targetH = Math.max(1, Math.round(bounds.height * scale));
 
-      // Dùng cache: chỉ vẽ lại offscreen canvas khi ảnh/scale/kích thước thay đổi
+      // Pattern cache: only recreate when image/scale/dimensions change
       if (
         !layer._textureCacheCanvas ||
         layer._textureCacheImg !== img ||
@@ -665,6 +688,8 @@ export class TextTransform {
       layer.ctx.fillStyle = textPattern;
     }
 
+    const isRtl = isRTL(layer.text || "");
+    layer.ctx.direction = isRtl ? "rtl" : "ltr";
     layer.ctx.textAlign = layer.textAlign;
 
     let drawX = layer.x;
@@ -673,13 +698,14 @@ export class TextTransform {
 
     drawX += pLeft - pRight;
 
-    // Kiểm tra và giữ chữ ở mép Bounding Box nếu bên kia còn không gian
+    // Clamp text inside bounding box boundaries
+    const effAlign = resolveEffectiveAlign(layer.textAlign, layer.text || "");
     const curveBendCheck = layer.curveBend || 0;
     if (bounds && curveBendCheck === 0) {
       const textW = bounds.textWidth;
       let textLeft = drawX;
-      if (layer.textAlign === "center") textLeft = drawX - textW / 2;
-      else if (layer.textAlign === "right") textLeft = drawX - textW;
+      if (effAlign === "center") textLeft = drawX - textW / 2;
+      else if (effAlign === "right") textLeft = drawX - textW;
 
       const textRight = textLeft + textW;
       const boxLeft = bounds.x;
@@ -721,7 +747,7 @@ export class TextTransform {
       const bend = layer.curveBend || 0;
 
       if (bend !== 0) {
-        // Curved text: đặt từng ký tự dọc theo cung tròn
+        // Curved text: position glyphs along circular arc
         const totalAngleDeg = bend * 1.8;
         const totalAngleRad = (totalAngleDeg * Math.PI) / 180;
         const halfAngle = Math.abs(totalAngleRad) / 2;
@@ -736,9 +762,9 @@ export class TextTransform {
           const cosHalf = Math.cos(halfAngle);
 
           let lineLeft = drawX;
-          if (layer.textAlign === "center") {
+          if (effAlign === "center") {
             lineLeft = drawX - lineTotalWidth / 2;
-          } else if (layer.textAlign === "right") {
+          } else if (effAlign === "right") {
             lineLeft = drawX - lineTotalWidth;
           }
 
@@ -766,7 +792,7 @@ export class TextTransform {
             layer.ctx.restore();
           }
 
-          // Trang trí cho curved text dọc theo cung tròn
+          // Curved text decorations along arc
           const dec =
             layer.textDecoration || (layer.underline ? "underline" : "none");
           if (dec !== "none") {
@@ -897,18 +923,59 @@ export class TextTransform {
           layer.ctx.fillText(lineText, drawX, lineY);
         }
       } else {
-        // Normal straight text
-        layer.ctx.fillText(lineText, drawX, lineY);
+        // Normal straight text (with Justify support)
+        const targetWidth = bounds ? bounds.textWidth : layer.ctx.measureText(lineText).width;
+        const words = lineText.trim().split(/\s+/);
+        const shouldJustify = !!(layer.textJustify && bounds && words.length > 1);
+
+        let lineStartX = drawX;
+        if (effAlign === "center") {
+          lineStartX = drawX - targetWidth / 2;
+        } else if (effAlign === "right") {
+          lineStartX = drawX - targetWidth;
+        }
+
+        if (shouldJustify) {
+          const wordWidths = words.map((w) => layer.ctx.measureText(w).width);
+          const totalWordsW = wordWidths.reduce((a, b) => a + b, 0);
+          const gapCount = words.length - 1;
+          const spaceW = Math.max(
+            layer.ctx.measureText(" ").width,
+            (targetWidth - totalWordsW) / gapCount
+          );
+
+          layer.ctx.save();
+          if (isRtl) {
+            let curX = lineStartX + targetWidth;
+            layer.ctx.textAlign = "right";
+            for (let w = 0; w < words.length; w++) {
+              layer.ctx.fillText(words[w], curX, lineY);
+              curX -= wordWidths[w] + spaceW;
+            }
+          } else {
+            let curX = lineStartX;
+            layer.ctx.textAlign = "left";
+            for (let w = 0; w < words.length; w++) {
+              layer.ctx.fillText(words[w], curX, lineY);
+              curX += wordWidths[w] + spaceW;
+            }
+          }
+          layer.ctx.restore();
+        } else {
+          layer.ctx.fillText(lineText, drawX, lineY);
+        }
 
         const dec =
           layer.textDecoration || (layer.underline ? "underline" : "none");
         if (dec !== "none" && lineText) {
-          const textWidth = layer.ctx.measureText(lineText).width;
-          let startX = drawX;
-          if (layer.textAlign === "center") {
-            startX = drawX - textWidth / 2;
-          } else if (layer.textAlign === "right") {
-            startX = drawX - textWidth;
+          const textWidth = shouldJustify ? targetWidth : layer.ctx.measureText(lineText).width;
+          let startX = shouldJustify ? lineStartX : drawX;
+          if (!shouldJustify) {
+            if (effAlign === "center") {
+              startX = drawX - textWidth / 2;
+            } else if (effAlign === "right") {
+              startX = drawX - textWidth;
+            }
           }
 
           const fontSize = layer.fontSize;
@@ -989,7 +1056,7 @@ export class TextTransform {
   }
 
   /**
-   * Vẽ khung chọn (selection overlay) và resize handle lên canvas chính
+   * Draw selection overlay and resize handle on main canvas
    */
   drawSelectionOverlay(layer: Layer | null): void {
     if (!layer) return;
@@ -1042,7 +1109,7 @@ export class TextTransform {
   }
 
   /**
-   * Bắt đầu chế độ chỉnh sửa chữ bằng textarea overlay
+   * Start inline text editing with textarea overlay
    */
   startTextEditing(layer: Layer | null, options: TextEditingOptions = {}): void {
     if (!layer || layer.type !== "text") return;
@@ -1120,7 +1187,7 @@ export class TextTransform {
   }
 
   /**
-   * Lưu lại nội dung text đã sửa từ textarea overlay vào layer
+   * Commit edited text from textarea overlay into layer
    */
   commitTextEditing(): void {
     if (!this.isEditing || !this.editorEl || !this.editingLayer) return;
@@ -1167,7 +1234,7 @@ export class TextTransform {
   }
 
   /**
-   * Hủy bỏ chỉnh sửa, khôi phục nội dung text ban đầu
+   * Cancel inline editing and revert text
    */
   cancelTextEditing(): void {
     if (!this.isEditing || !this.editorEl || !this.editingLayer) return;
@@ -1179,7 +1246,7 @@ export class TextTransform {
   }
 
   /**
-   * Xóa thẻ textarea overlay khỏi DOM
+   * Remove textarea overlay from DOM
    */
   removeEditor(): void {
     if (this.editorEl && this.editorEl.parentNode) {
@@ -1192,7 +1259,7 @@ export class TextTransform {
   }
 
   /**
-   * Tự động điều chỉnh chiều cao textarea theo scrollHeight
+   * Auto-resize textarea height to match scrollHeight
    */
   autosizeEditor(editor: HTMLTextAreaElement): void {
     editor.style.height = "auto";
@@ -1200,7 +1267,7 @@ export class TextTransform {
   }
 
   /**
-   * Định vị textarea overlay khít với vị trí layer trên màn hình
+   * Position textarea overlay over the active layer
    */
   positionEditorForLayer(layer: Layer, editor: HTMLTextAreaElement): void {
     const bounds = this.getTextBounds(layer);
@@ -1231,6 +1298,7 @@ export class TextTransform {
     editor.style.fontFamily = layer.fontFamily;
     editor.style.color =
       typeof layer.fontColor === "string" ? layer.fontColor : "#ffffff";
-    editor.style.textAlign = layer.textAlign;
+    editor.style.textAlign = layer.textJustify ? "justify" : layer.textAlign;
+    editor.style.direction = isRTL(layer.text || "") ? "rtl" : "ltr";
   }
 }

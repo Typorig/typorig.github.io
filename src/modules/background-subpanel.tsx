@@ -28,14 +28,14 @@ export class BackgroundSubpanel {
   }
 
   /**
-   * Cập nhật layerManager instance nếu cần
+   * Update layerManager instance if needed
    */
   setLayerManager(lm: LayerManager): void {
     this.layerManager = lm;
   }
 
   /**
-   * Nạp ảnh HTMLImageElement vào Background layer & điều chỉnh canvas
+   * Load HTMLImageElement into Background layer & adjust canvas
    */
   loadIntoBackground(img: HTMLImageElement): void {
     const canvas = this.layerManager.mainCanvas;
@@ -60,7 +60,7 @@ export class BackgroundSubpanel {
   }
 
   /**
-   * Nạp file ảnh (File hoặc Blob) vào Background layer
+   * Load image file (File or Blob) into Background layer
    */
   loadFromFile(file: Blob | File): void {
     const reader = new FileReader();

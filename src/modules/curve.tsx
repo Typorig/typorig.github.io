@@ -1,6 +1,6 @@
 /**
  * Curve Module - TSX Real DOM
- * Quản lý độ cong (bending) cho Text Layer
+ * Manages text bending / curved text for Text Layer
  */
 
 import { h } from "../ui/jsx";

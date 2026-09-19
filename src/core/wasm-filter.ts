@@ -1,7 +1,7 @@
 /**
  * WebAssembly Image Filter Service
- * Hỗ trợ tăng tốc xử lý điểm ảnh (Brightness, Grayscale, Invert) bằng C++ WASM
- * Tự động fallback sang Pure Canvas 2D nếu WASM chưa tải
+ * Accelerated pixel processing (Brightness, Grayscale, Invert) via C++ WASM
+ * Falls back to pure Canvas 2D if WASM is not loaded
  */
 
 export interface WasmModuleInstance {
@@ -49,7 +49,7 @@ export class WasmFilterService {
   }
 
   /**
-   * Chỉnh độ sáng (Brightness)
+   * Adjust brightness
    */
   adjustBrightness(imageData: ImageData, delta: number): ImageData {
     const data = imageData.data;
@@ -65,7 +65,7 @@ export class WasmFilterService {
   }
 
   /**
-   * Biến ảnh thành Grayscale
+   * Convert image to grayscale
    */
   applyGrayscale(imageData: ImageData): ImageData {
     const data = imageData.data;
@@ -81,7 +81,7 @@ export class WasmFilterService {
   }
 
   /**
-   * Đảo màu ảnh (Invert)
+   * Invert image colors
    */
   applyInvert(imageData: ImageData): ImageData {
     const data = imageData.data;

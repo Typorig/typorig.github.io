@@ -1,12 +1,12 @@
 /**
  * Layer List Sidebar UI - TSX Real DOM
- * Khôi phục giao diện chuẩn ban đầu:
- * - Checkbox chọn layer để xóa
- * - Thumbnail ảnh/text thu nhỏ từ canvas của layer
- * - Tên layer và Subtitle Type (TEXT, BACKGROUND, ...)
- * - Nút khóa (Lock) và nút ẩn/hiện (Visibility)
- * - Kéo thả (Drag & Drop) để sắp xếp layer
- * - Nút xóa các layer đã chọn trong header
+ * Layer list UI component:
+ * - Multi-select checkboxes
+ * - Thumbnails
+ * - Layer name & type subtitle
+ * - Lock & visibility toggles
+ * - Drag & drop reordering
+ * - Header delete action
  */
 
 import { h } from "./jsx";
@@ -41,7 +41,7 @@ export function createLayerListPanel(props: LayerListProps): HTMLElement {
     }
   }
 
-  // Khởi tạo nút Delete selected trong header
+  // Initialize delete button in header
   const deleteBtn = document.getElementById("layer-delete-selected");
   if (deleteBtn) {
     deleteBtn.onclick = () => {
@@ -62,7 +62,7 @@ export function createLayerListPanel(props: LayerListProps): HTMLElement {
     };
   }
 
-  // Khởi tạo nút Close panel
+  // Initialize close panel button
   const closeBtn = document.querySelector(".layer-sidebar-close");
   if (closeBtn) {
     (closeBtn as HTMLElement).onclick = () => {
@@ -100,7 +100,7 @@ export function createLayerListPanel(props: LayerListProps): HTMLElement {
       return;
     }
 
-    // Hiển thị thứ tự ngược lại (layer trên cùng ở đầu danh sách)
+    // Display in reverse order (topmost layer first)
     [...currentLayers].reverse().forEach((layer, index) => {
       const isBackground = layer.type === "background" || layer.id === 0;
 
@@ -288,7 +288,7 @@ export function createLayerListPanel(props: LayerListProps): HTMLElement {
     updateDeleteButtonVisibility();
   }
 
-  // Đăng ký các sự kiện từ EventBus để đồng bộ hóa UI
+  // Register EventBus listeners for UI synchronization
   eventBus.on<LayerItemDTO[]>("layer:changed", (layers) => {
     render(layers);
   });
@@ -297,7 +297,7 @@ export function createLayerListPanel(props: LayerListProps): HTMLElement {
     render();
   });
 
-  // Render ban đầu
+  // Initial render
   render();
 
   return container;

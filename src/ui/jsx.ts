@@ -1,6 +1,6 @@
 /**
- * Mini JSX Runtime thuần - Zero-dependency
- * Chuyển đổi thẻ JSX thành Real DOM Node (HTMLElement / SVGElement / DocumentFragment)
+ * Mini JSX Runtime - Zero-dependency
+ * Converts JSX elements to Real DOM Nodes
  */
 
 type Child = Node | string | number | boolean | null | undefined | Child[];

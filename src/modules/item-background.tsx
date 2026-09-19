@@ -1,7 +1,7 @@
 /**
  * Item Background Module - TSX Real DOM
- * Quản lý background (Color / Image) cho các element layer (text, shape, etc.)
- * Bao gồm padding 4 hướng và border-radius
+ * Manages background (Color / Image) for element layers (text, shape, etc.)
+ * Includes 4-way padding and border-radius
  */
 
 import { h } from "../ui/jsx";
