@@ -1,4 +1,16 @@
-# Typorig
+# Typorig (Moved to Pixorig)
+
+> [!IMPORTANT]
+> **Typorig has officially evolved into Pixorig!**
+>
+> What began as a typography-centered tool has expanded into a full creative image-editing workspace featuring advanced filters, image adjustments, cutouts, 3D text effects, and retouching tools. To reflect this broader mission beyond typography alone, the project has relocated to a new home.
+>
+> **New Repository & Active Development:**  
+> 👉 **[https://github.com/Pixorig/Pixorig](https://github.com/Pixorig/Pixorig)**
+>
+> This repository is maintained as an archive. All new features, bug fixes, and releases are published under **Pixorig**.
+
+---
 
 **Typorig** is a browser-based image editing tool that runs entirely on the frontend. Built with TypeScript, Vite, and WebAssembly (WASM) — no heavy frameworks like React, Vue, or Angular. Uses a custom JSX runtime for lightweight DOM rendering.
 

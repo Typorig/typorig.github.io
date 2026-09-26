@@ -327,4 +327,18 @@ if (canvas) {
   }
 
   initDefaultCanvas();
+
+  const migrationModal = document.getElementById("migration-modal");
+  const closeMigration = () => {
+    if (migrationModal) migrationModal.style.display = "none";
+  };
+  document
+    .getElementById("close-migration-btn")
+    ?.addEventListener("click", closeMigration);
+  document
+    .getElementById("dismiss-migration-btn")
+    ?.addEventListener("click", closeMigration);
+  migrationModal?.addEventListener("click", (e) => {
+    if (e.target === migrationModal) closeMigration();
+  });
 }
